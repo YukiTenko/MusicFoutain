@@ -19,8 +19,9 @@ namespace MusicFountain
 {
     public class Connection_Hardware
     {
-        public Connection_PLC connectionPLC;
-        public Connection_Artnet connectionArtNet;
+        public Connection.Connection_PLC connectionPLC;
+        public Connection.Connection_PLC_Modbus connectionPLCModbus;
+        public Connection.Connection_Artnet connectionArtNet;
     }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -28,147 +29,185 @@ namespace MusicFountain
     public partial class MainWindow : Window
     {
         // Data
-        private Data_Config dataConfig;
-        private Data_Log dataLog;
-        private Data_Login dataLogin;
+        private Data.Data_Config dataConfig;
+        private Data.Data_Log dataLog;
+        private Data.Data_Login dataLogin;
 
         // UI
-        private UI_ConfigGroup uiConfigGroup;
-        private UI_ConfigHardwareOption uiConfigHardwareOption;
-        private UI_ConfigHardware_VO_PLC uiConfigHardware_VO_PLC;
-        private UI_ConfigHardware_VS_PLC uiConfigHardware_VS_PLC;
-        private UI_ConfigHardware uiConfigHardware;
-        private UI_EditMusicEffect uiMusicEffect;
-        private UI_EditPlaylist uiEditPlaylist;
-        private UI_GroupEdit_VO_PLC uiGroupEdit_VO_PLC;
-        private UI_GroupEdit_VS_PLC uiGroupEdit_VS_PLC;
-        private UI_Log uiLog;
-        private UI_Login uiLogin;
-        private UI_Running uiRunning;
-
-        private Test testUI;
+        //private UI_Login uiLogin;
+        private UI.UI_Wellcome uiWellCome;
+        private UI.Hardware.UI_HardwareConfig uiHardwareConfig;
+        private UI.Effect.UI_EffectEditor uiEffectEditor;
+        private UI.Music.UI_MusicEditor uiMusicEditor;
+        private UI.Playlist.UI_Playlist uiPlaylist;
+        private UI.Log.UI_Log uiLog;
 
         // Connection
         private List<Connection_Hardware> listConnectionHardware;
 
         // Control algorithm
-        private Control_Algorithm controlAlgorithm;
+        private List<Control_Group> listControlGroup;
+        private Control_Music controlMusic;
 
-public MainWindow()
+        public MainWindow()
         {
             InitializeComponent();
 
-            // Creat data struct + Update config and log data
+            // Creat all variables
             {
-                dataConfig = new Data_Config();
-                dataLog = new Data_Log();
-                dataLogin = new Data_Login();
+                // Data backends
+                dataConfig = new Data.Data_Config();
+                dataLog = new Data.Data_Log();
+                dataLogin = new Data.Data_Login();
+
+                // UIs
+                uiWellCome = new UI.UI_Wellcome();
+                uiHardwareConfig = new UI.Hardware.UI_HardwareConfig();
+                uiEffectEditor = new UI.Effect.UI_EffectEditor();
+                uiMusicEditor = new UI.Music.UI_MusicEditor();
+                uiPlaylist = new UI.Playlist.UI_Playlist();
+                uiLog = new UI.Log.UI_Log();
+
+                // List connection
+                listConnectionHardware = new List<Connection_Hardware>();
+
+                // List control group
+                listControlGroup = new List<Control_Group>();
+                controlMusic = new Control_Music(null);
+            }
+
+            // Update config and log data
+            {
+
             }
 
             // Creat UI
             {
-                uiConfigGroup = new UI_ConfigGroup("../UI/ConfigGroup.xml");
-                uiConfigGroup.backClick += UIConfigGroup_BackButtonClick_EventHandle;
-                uiConfigGroup.saveClick += UIConfigGroup_SaveButtonClick_EventHandle;
-                uiConfigGroup.editClick += UIConfigGroup_EditButtonClick_EventHandle;
-                uiConfigGroup.deleteClick += UIConfigGroup_DeleteButtonClick_EventHandle;
-                uiConfigGroup.addClick += UIConfigGroup_AddButtonClick_EventHandle;
-                uiConfigGroup.Refresh();
+                // Hardware config
+                uiHardwareConfig.updateNewListHardwareEvent += UIConfigHardware_ListHardwareSaveButtonClick_EventHandle;
+                uiHardwareConfig.reconnectHardwareEvent += UIConfigHardware_ReconnectHardwareButtonClick_EventHandle;
+                uiHardwareConfig.groupTestClick += UIConfigHardware_GroupTestClick_EventHandle;
+                uiHardwareConfig.groupSaveClick += UIConfigHardware_GroupSaveClick_EventHandle;
+                uiHardwareConfig.updateHardwareOption += UIConfigHardware_HardwareOptionSaveClick_EventHandle;
+                {// Update hardware config
+                    uiHardwareConfig.Update_HardwareConfig(dataConfig.Get_DataConfigHardware());
+                }
 
-                uiConfigHardwareOption = new UI_ConfigHardwareOption("../UI/ConfigHardwareOption.xml");
-                uiConfigHardwareOption.backClick += UIConfigHardwareOption_BackButtonClick_EventHandle;
-                uiConfigHardwareOption.saveClick += UIConfigHardwareOption_SaveButtonClick_EventHandle;
-                uiConfigHardwareOption.Refresh();
+                // Effect editor
+                uiEffectEditor.saveEffectListClick += UIEffectEditor_SaveEffectListClick_EventHandle;
+                {// Update group name list and music config list for editor
+                    List<Data.Data_Config_Hardware_Group> listGroupBufForEditor = new List<Data.Data_Config_Hardware_Group>();
+                    listGroupBufForEditor.Clear();
+                    for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                    {
+                        for (int j = 0; j < dataConfig.Get_DataConfigHardware().listHardware[i].listGroup.Count; j++)
+                        {
+                            listGroupBufForEditor.Add(dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j]);
+                        }
+                    }
+                    uiEffectEditor.UpdateListGroupConfig(listGroupBufForEditor);
+                    // list effect
+                    uiEffectEditor.UpdateListEffectConfig(dataConfig.Get_DataConfigPlaylist().listEffect);
+                }
 
-                uiConfigHardware = new UI_ConfigHardware("../UI/ConfigHardware.xml");
-                uiConfigHardware.backClick += UIConfigHardware_BackButtonClick_EventHandle;
-                uiConfigHardware.optionClick += UIConfigHardware_OptionButtonClick_EventHandle;
-                uiConfigHardware.saveClick += UIConfigHardware_SaveButtonClick_EventHandle;
-                uiConfigHardware.editClick += UIConfigHardware_EditButtonClick_EventHandle;
-                uiConfigHardware.deleteClick += UIConfigHardware_DeleteButtonClick_EventHandle;
-                uiConfigHardware.addClick += UIConfigHardware_AddButtonClick_EventHandle;
-                uiConfigHardware.Refresh();
+                // Music editor
+                uiMusicEditor.playMusicClick += UIMusicEditor_PlayMusicClick_EventHandle;
+                uiMusicEditor.stopMusicClick += UIMusicEditor_StopMusicClick_EventHandle;
+                uiMusicEditor.playMusicTimeIntervalUpdate += UIMusicEditor_PlayMusicTimeUpdate_EventHandle;
+                uiMusicEditor.saveMusicEffectClick += UIMusicEditor_SaveMusicEffectClick_EventHandle;
+                uiMusicEditor.Update_MusicTime_ThreadStart();
+                {// Update group name list and music config list for editor
+                    List<Data.Data_Config_Hardware_Group> listGroupBufForEditor = new List<Data.Data_Config_Hardware_Group>();
+                    listGroupBufForEditor.Clear();
+                    for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                    {
+                        for (int j = 0; j < dataConfig.Get_DataConfigHardware().listHardware[i].listGroup.Count; j++)
+                        {
+                            listGroupBufForEditor.Add(dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j]);
+                        }
+                    }
+                    uiMusicEditor.UpdateListGroupConfig(listGroupBufForEditor);
+                    // list effect
+                    uiMusicEditor.UpdateListEffectConfig(dataConfig.Get_DataConfigPlaylist().listEffect);
+                    // list music
+                    uiMusicEditor.UpdateListMusicConfig(dataConfig.Get_DataConfigPlaylist().listMusic);
+                }
 
-                uiConfigHardware_VO_PLC = new UI_ConfigHardware_VO_PLC("../UI/ConfigHardware_VO_PLC.xml");
-                uiConfigHardware_VO_PLC.backClick += UIConfigHardware_VO_PLC_BackButtonClick_EventHandle;
-                uiConfigHardware_VO_PLC.saveClick += UIConfigHardware_VO_PLC_SaveButtonClick_EventHandle;
-                uiConfigHardware_VO_PLC.onOffTestClick += UIConfigHardware_VO_PLC_OnOffTestButtonClick_EventHandle;
-                uiConfigHardware_VO_PLC.Refresh();
+                // Playlist
+                uiPlaylist.playMusicClick += UIMusicEditor_PlayMusicClick_EventHandle;
+                uiPlaylist.stopMusicClick += UIMusicEditor_StopMusicClick_EventHandle;
+                uiPlaylist.playlistModeSaveClick += UIPlayList_PlaylistModeSave_EventHandle;
+                uiPlaylist.playMusicTimeIntervalUpdate += UIMusicEditor_PlayMusicTimeUpdate_EventHandle;
+                uiPlaylist.Update_MusicTime_ThreadStart();
+                {// Update music config list and playlist mode
 
-                uiConfigHardware_VS_PLC = new UI_ConfigHardware_VS_PLC("../UI/ConfigHardware_VS_PLC.xml");
-                uiConfigHardware_VS_PLC.backClick += UIConfigHardware_VS_PLC_BackButtonClick_EventHandle;
-                uiConfigHardware_VS_PLC.saveClick += UIConfigHardware_VS_PLC_SaveButtonClick_EventHandle;
-                uiConfigHardware_VS_PLC.moveTestClick += UIConfigHardware_VS_PLC_MoveTestButtonClick_EventHandle;
-                uiConfigHardware_VS_PLC.goHomeClick += UIConfigHardware_VS_PLC_GoHomeButtonClick_EventHandle;
-                uiConfigHardware_VS_PLC.Refresh();
+                    List<Data.Data_Config_Hardware_Group> listGroupBufForEditor = new List<Data.Data_Config_Hardware_Group>();
+                    listGroupBufForEditor.Clear();
+                    for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                    {
+                        for (int j = 0; j < dataConfig.Get_DataConfigHardware().listHardware[i].listGroup.Count; j++)
+                        {
+                            listGroupBufForEditor.Add(dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j]);
+                        }
+                    }
+                    uiPlaylist.UpdateListGroupConfig(listGroupBufForEditor);
+                    // Update list music and mode
+                    uiPlaylist.UpdateListMusicConfig(dataConfig.Get_DataConfigPlaylist().listMusic);
+                    uiPlaylist.UpdatePlaylistMode(dataConfig.Get_DataConfigPlaylist().playlistMode);
+                }
 
-                uiMusicEffect = new UI_EditMusicEffect("../UI/EditMusicEffect.xml");
-                uiMusicEffect.backClick += UIEditMusicEffect_BackButtonClick_EventHandle;
-                uiMusicEffect.Refresh();
+                // Log
+                uiLog.clearLogClick += UILog_ClearLogClick_EventHandle;
+                uiLog.chosenLogFileChanged += UILog_ChosenLogFileChanged_EventHandle;
 
-                uiEditPlaylist = new UI_EditPlaylist("../UI/EditPlaylist.xml");
-                uiEditPlaylist.backClick += UIEditPlaylist_BackButtonClick_EventHandle;
-                uiEditPlaylist.addClick += UIEditPlaylist_AddButtonClick_EventHandle;
-                uiEditPlaylist.editClick += UIEditPlaylist_EditButtonClick_EventHandle;
-                uiEditPlaylist.Refresh();
-
-                uiGroupEdit_VO_PLC = new UI_GroupEdit_VO_PLC("../UI/GroupEdit_VO_PLC.xml");
-                uiGroupEdit_VO_PLC.backClick += uiGroupEdit_VO_PLC_BackButtonClick_EventHandle;
-                uiGroupEdit_VO_PLC.Refresh();
-
-                uiGroupEdit_VS_PLC = new UI_GroupEdit_VS_PLC("../UI/GroupEdit_VS_PLC.xml");
-                uiGroupEdit_VS_PLC.backClick += uiGroupEdit_VS_PLC_BackButtonClick_EventHandle;
-                uiGroupEdit_VS_PLC.Refresh();
-
-                uiLog = new UI_Log("../UI/Log.xml");
-                uiLog.backClick += UILog_BackButtonClick_EventHandle;
-                uiLog.prevClick += UILog_PrevButtonClick_EventHandle;
-                uiLog.nextClick += UILog_NextButtonClick_EventHandle;
-                uiLog.Refresh();
-
-                uiLogin = new UI_Login("../UI/Login.xml");
-                uiLogin.loginClick += UILogin_LoginButtonClick_EventHandle;
-                uiLogin.Refresh();
-
-                uiRunning = new UI_Running("../UI/Running.xml");
-                uiRunning.backClick += UIRunning_BackButtonClick_EventHandle;
-                uiRunning.configGroupClick += UIRunning_ConfigGroupButtonClick_EventHandle;
-                uiRunning.configHardwareClick += UIRunning_ConfigHardwareButtonClick_EventHandle;
-                uiRunning.editPlaylistClick += UIRunning_EditPlaylistButtonClick_EventHandle;
-                uiRunning.logClick += UIRunning_LogButtonClick_EventHandle;
-                uiRunning.Refresh();
-
-                testUI = new Test();
-
-                mainLayout.Content = uiRunning;
+                // Setup mainLayout
+                mainLayout.Content = uiWellCome;
                 mainLayout.NavigationUIVisibility = NavigationUIVisibility.Hidden;
                 mainLayout.NavigationService.RemoveBackEntry();
             }
 
             // Creat connection
             {
-                listConnectionHardware = new List<Connection_Hardware>();
                 listConnectionHardware.Clear();
                 for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
                 {
+                    dataConfig.Get_DataConfigHardware().listHardware[i].serverConnectionState = "Disconnected";
                     Connection_Hardware connectionHardware = new Connection_Hardware();
                     switch (dataConfig.Get_DataConfigHardware().listHardware[i].type)
                     {
-                        case "Valve Stepper - PLC":
                         case "Valve On/Off - PLC":
+                        case "Pump A/D & Power - PLC":
+                        case "LED 485 - PLC":
+                        case "Valve Stepper - PLC":
+                        case "Valve On/Off & Stepper - PLC":
+                        case "Valve Stepper & LED 485 - PLC":
                             {
-                                connectionHardware.connectionPLC = new Connection_PLC(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID);
-                                connectionHardware.connectionPLC.Connect2OPCUAServer(dataConfig.Get_DataConfigHardware().listHardware[i].opcServerURL);
+                                connectionHardware.connectionPLCModbus = new Connection.Connection_PLC_Modbus(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID, dataConfig.Get_DataConfigHardware().listHardware[i].modbusServerURL, 502, 1);
+                                connectionHardware.connectionPLCModbus.plcModbusConnected += Connection_Connected_EventHandle;
+                                connectionHardware.connectionPLCModbus.plcModbusConnecting += Connection_Connecting_EventHandle;
+                                connectionHardware.connectionPLCModbus.plcModbusDisconnected += Connection_Disconnected_EventHandle;
+                                //connectionHardware.connectionPLCModbus.Connect();
+                                if (dataConfig.Get_DataConfigHardware().listHardware[i].optionInverter != null)
+                                {
+                                    connectionHardware.connectionPLCModbus.Change_PumpAnalog_PLC_Config(dataConfig.Get_DataConfigHardware().listHardware[i].optionInverter);
+                                }
+                                if (dataConfig.Get_DataConfigHardware().listHardware[i].optionVS_PLC != null)
+                                {
+                                    connectionHardware.connectionPLCModbus.Change_ValveStep_PLC_Config(dataConfig.Get_DataConfigHardware().listHardware[i].optionVS_PLC);
+                                }
+                                connectionHardware.connectionPLCModbus.Thread_Start();
                             }
                             break;
-                        case "LED - ArtnetDMX":
+                        case "LED DMX - Artnet":
                             {
-                                connectionHardware.connectionArtNet = new Connection_Artnet(IPAddress.Parse("192.168.0.22"), IPAddress.Parse("255.255.255.0"));
+                                connectionHardware.connectionArtNet = new Connection.Connection_Artnet(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID, IPAddress.Parse(dataConfig.Get_DataConfigHardware().listHardware[i].artnetServerURL), IPAddress.Parse("255.255.255.0"));
+                                connectionHardware.connectionArtNet.artnetConnected += Connection_Connected_EventHandle;
+                                //connectionHardware.connectionArtNet.Connect2Artnet();
                             }
                             break;
                         default:
                             {
-                                MessageBox.Show("Creat connection: Unknown hardware type: " + dataConfig.Get_DataConfigHardware().listHardware[i].type + ", hardwareID: " + dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID.ToString());
+                                MessageBox.Show("Creat connection: Unknown hardwareType: " + dataConfig.Get_DataConfigHardware().listHardware[i].type + ", hardwareID: " + dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID.ToString());
                             }
                             break;
                     }
@@ -178,417 +217,807 @@ public MainWindow()
 
             // Creat control algorithm
             {
-                controlAlgorithm = new Control_Algorithm();
+                listControlGroup.Clear();
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {
+                    for (int j = 0; j < dataConfig.Get_DataConfigHardware().listHardware[i].listGroup.Count; j++)
+                    {
+                        Control_Group newControlGroup = new Control_Group(dataConfig.Get_DataConfigHardware().listHardware[i], dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j]);
+                        switch (dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].type)
+                        {
+                            case "Valve Stepper - PLC":
+                            case "Valve On/Off - PLC":
+                            case "Pump Digital - PLC":
+                            case "Pump Analog - PLC":
+                            case "Pump Analog Dual - PLC":
+                            case "LED 485 - PLC":
+                            case "LED DMX - Artnet":
+                            case "System Power":
+                                {
+                                    newControlGroup.Thread_Start();
+                                }
+                                break;
+                            default:
+                                {
+                                    MessageBox.Show("Creat control: Unknown groupType: " + dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].type + ", hardwareID: " + dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].hardwareID.ToString() + ", groupID: " + dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].groupID.ToString());
+                                }
+                                break;
+                        }
+                        newControlGroup.changeVOPLC_Data += ControlGroup_ChangeVOPLCData;
+                        newControlGroup.changeVSPLC_Data += ControlGroup_ChangeVSPLCData;
+                        newControlGroup.changePumpDigital_Data += ControlGroup_ChangePumpDigitalData;
+                        newControlGroup.changePumpAnalog_Data += ControlGroup_ChangePumpAnalogData;
+                        newControlGroup.changeLEDArtnet_Data += ControlGroup_ChangeLedArtnetData;
+                        newControlGroup.changeLEDPLC_Data += ControlGroup_ChangeLEDPLCData;
+                        newControlGroup.changeSystemPower_Data += ControlGroup_ChangeSystemPowerData;
+                        listControlGroup.Add(newControlGroup);
+                    }
+                }
+
+                controlMusic.groupChange += ControlMusic_GroupChange_EventHandle;
+                controlMusic.Thread_Start();
+            }
+
+            // Others
+            {
+                dataLog.CreatLog(Data.GLOBAL_CONSTANT.LOG_TYPE_SYSTEM_START, "Khởi động phần mềm thành công");
             }
         }
         // Private methods -------------------------------------------------------------------------------
-        private void UIConfigGroup_BackButtonClick_EventHandle(object sender, int noUse)
+            // For control thread
+        private void ControlGroup_ChangeVOPLCData(object sender,  Data.Data_Config_Hardware_Group newConfig)
         {
-            uiRunning.Refresh();
-            mainLayout.Content = uiRunning;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIConfigGroup_SaveButtonClick_EventHandle(object sender, List<Data_Config_Hardware_Group> listGroupBuf)
-        {
-
-        }
-        private void UIConfigGroup_EditButtonClick_EventHandle(object sender, Data_Config_Hardware_Group groupBuf)
-        {
-            switch (groupBuf.type)
+            for (int j = 0; j < listConnectionHardware.Count; j++)
             {
-                case "Valve Stepper - PLC":
-                    {
-                        uiGroupEdit_VS_PLC.Refresh();
-                        mainLayout.Content = uiGroupEdit_VS_PLC;
-                        mainLayout.NavigationService.RemoveBackEntry();
-                    }
-                    break;
-                case "Valve On/Off - PLC":
-                    {
-                        uiGroupEdit_VO_PLC.Refresh();
-                        mainLayout.Content = uiGroupEdit_VO_PLC;
-                        mainLayout.NavigationService.RemoveBackEntry();
-                    }
-                    break;
-                case "Inverter - A":
-                    {
-                    }
-                    break;
-                case "LED - ArtnetDMX":
-                    {
-                    }
-                    break;
-                default:
-                    {
-
-                    }
-                    break;
-            }
-        }
-        private void UIConfigGroup_DeleteButtonClick_EventHandle(object sender, int groupID)
-        {
-            Data_Config_Hardware_Group deleteGroup = dataConfig.DeleteGroupByGID(groupID);
-            if (deleteGroup == null)
-            {
-                MessageBox.Show("Xoá Group thất bại .\nKhông tìm được Group với groupID: " + groupID + " .");
-            }
-            else
-            {
-                MessageBox.Show("Xoá " + deleteGroup.name + " thành công.");
-            }
-            // Update new list PLC
-            uiConfigGroup.Update_ListGroup(dataConfig.Get_DataConfigHardware().listGroup);
-        }
-        private void UIConfigGroup_AddButtonClick_EventHandle(object sender, Data_Config_Hardware_Group groupBuf)
-        {
-            int newGroupID = dataConfig.AddGroup(groupBuf);
-            if (newGroupID > 0)
-            {
-                MessageBox.Show(groupBuf.name + "đã được thêm với groupID: " + newGroupID.ToString() + ".");
-            }
-            else
-            {
-                MessageBox.Show("Thêm group thất bại .");
-            }
-            // Update new list PLC
-            uiConfigGroup.Update_ListGroup(dataConfig.Get_DataConfigHardware().listGroup);
-        }
-        private void UIConfigHardwareOption_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiConfigHardware.Refresh();
-            mainLayout.Content = uiConfigHardware;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIConfigHardwareOption_SaveButtonClick_EventHandle(object sender, int noUse)
-        {
-
-        }
-        private void UIConfigHardware_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiRunning.Refresh();
-            mainLayout.Content = uiRunning;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIConfigHardware_OptionButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiConfigHardwareOption.Refresh();
-            mainLayout.Content = uiConfigHardwareOption;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIConfigHardware_SaveButtonClick_EventHandle(object sender, List<Data_Config_Hardware_Config> newListPLC)
-        {
-            for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
-            {
-                for (int j = 0; j < newListPLC.Count; j++)
+                if (listConnectionHardware[j].connectionPLCModbus != null)
                 {
-                    if (dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == newListPLC[j].hardwareID)
-                    {
-                        dataConfig.Get_DataConfigHardware().listHardware[i].name = newListPLC[j].name;
-                        dataConfig.Get_DataConfigHardware().listHardware[i].type = newListPLC[j].type;
-                        dataConfig.Get_DataConfigHardware().listHardware[i].opcServerURL = newListPLC[j].opcServerURL;
+                    if (newConfig.hardwareID == listConnectionHardware[j].connectionPLCModbus.Get_HardwareID())
+                    {// Send data
+                        listConnectionHardware[j].connectionPLCModbus.Change_ValveOnOff_PLC_Data(newConfig.listVO_PLC);
                     }
                 }
             }
-            for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
-            {
-                dataConfig.EditPLC(dataConfig.Get_DataConfigHardware().listHardware[i]);
-            }
-            MessageBox.Show("Lưu thông tin cấu hình PLC thành công .");
         }
-        private void UIConfigHardware_EditButtonClick_EventHandle(object sender, int plcGID)
+        private void ControlGroup_ChangeVSPLCData(object sender,  Data.Data_Config_Hardware_Group newConfig)
         {
-            bool plcGIDCheck = false;
+            for (int j = 0; j < listConnectionHardware.Count; j++)
+            {
+                if (listConnectionHardware[j].connectionPLCModbus != null)
+                {
+                    if (newConfig.hardwareID == listConnectionHardware[j].connectionPLCModbus.Get_HardwareID())
+                    {// Send data
+                        listConnectionHardware[j].connectionPLCModbus.Change_ValveStep_PLC_Data(newConfig.listVS_PLC);
+                    }
+                }
+            }
+        }
+        private void ControlGroup_ChangePumpDigitalData(object sender,  Data.Data_Config_Hardware_Group newConfig)
+        {
+            for (int j = 0; j < listConnectionHardware.Count; j++)
+            {
+                if (listConnectionHardware[j].connectionPLCModbus != null)
+                {
+                    if (newConfig.hardwareID == listConnectionHardware[j].connectionPLCModbus.Get_HardwareID())
+                    {// Send data
+                        listConnectionHardware[j].connectionPLCModbus.Change_PumpDigital_PLC_Data(newConfig.listInverter);
+                    }
+                }
+            }
+        }
+        private void ControlGroup_ChangePumpAnalogData(object sender,  Data.Data_Config_Hardware_Group newConfig)
+        {
+            for (int j = 0; j < listConnectionHardware.Count; j++)
+            {
+                if (listConnectionHardware[j].connectionPLCModbus != null)
+                {
+                    if (newConfig.hardwareID == listConnectionHardware[j].connectionPLCModbus.Get_HardwareID())
+                    {// Send data
+                        listConnectionHardware[j].connectionPLCModbus.Change_PumpAnalog_PLC_Data(newConfig.listInverter);
+                    }
+                }
+            }
+        }
+        private void ControlGroup_ChangeLedArtnetData(object sender,  Data.Data_Config_Hardware_Group newConfig)
+        {
+            //List<List<Data.Data_Config_Device_LED_ArtnetDMX>> listLEDChangeBuf = new List<List<Data.Data_Config_Device_LED_ArtnetDMX>>();
+            //listLEDChangeBuf.Clear();
+            //// Creat list hardware and device buffer
+            //for (int i = 0; i < newConfig.listLED_ArtnetDMX.Count; i++)
+            //{
+            //    bool newConnectionCheck = true;
+            //    for (int j = 0; j < listLEDChangeBuf.Count; j++)
+            //    {
+            //        if (listLEDChangeBuf[j].Count > 0)
+            //        {
+            //            if (newConfig.listLED_ArtnetDMX[i].hardwareID == listLEDChangeBuf[j][0].hardwareID)
+            //            {
+            //                newConnectionCheck = false;
+            //                listLEDChangeBuf[j].Add(newConfig.listLED_ArtnetDMX[i]);
+            //            }
+            //        }
+            //    }
+            //    if (newConnectionCheck) // Creat new list device buffer
+            //    {
+            //        List<Data.Data_Config_Device_LED_ArtnetDMX> ledBuf = new List<Data.Data_Config_Device_LED_ArtnetDMX>();
+            //        ledBuf.Clear();
+            //        ledBuf.Add(newConfig.listLED_ArtnetDMX[i]);
+            //        listLEDChangeBuf.Add(ledBuf);
+            //    }
+            //}
+            // Send data to hardware
+            //for (int i = 0; i < listLEDChangeBuf.Count; i++)
+            {
+                for (int j = 0; j < listConnectionHardware.Count; j++)
+                {
+                    if (listConnectionHardware[j].connectionArtNet != null)
+                    {
+                        if (newConfig.hardwareID == listConnectionHardware[j].connectionArtNet.Get_HardwareID())
+                        {// Send data
+                            listConnectionHardware[j].connectionArtNet.SendArtnetDmx(newConfig.listLED_ArtnetDMX);
+                        }
+                    }
+                }
+            }
+        }
+        private void ControlGroup_ChangeLEDPLCData(object sender,  Data.Data_Config_Hardware_Group newConfig)
+        {
+            //List<List<Data.Data_Config_Device_LED_PLC>> listLEDChangeBuf = new List<List<Data.Data_Config_Device_LED_PLC>>();
+            //listLEDChangeBuf.Clear();
+            //Creat list hardware and device buffer
+            //for (int i = 0; i < newConfig.listLED_PLC.Count; i++)
+            //{
+            //    bool newConnectionCheck = true;
+            //    for (int j = 0; j < listLEDChangeBuf.Count; j++)
+            //    {
+            //        if (listLEDChangeBuf[j].Count > 0)
+            //        {
+            //            if (newConfig.listLED_PLC[i].hardwareID == listLEDChangeBuf[j][0].hardwareID)
+            //            {
+            //                newConnectionCheck = false;
+            //                listLEDChangeBuf[j].Add(newConfig.listLED_PLC[i]);
+            //            }
+            //        }
+            //    }
+            //    if (newConnectionCheck) // Creat new list device buffer
+            //    {
+            //        List<Data.Data_Config_Device_LED_PLC> ledBuf = new List<Data.Data_Config_Device_LED_PLC>();
+            //        ledBuf.Clear();
+            //        ledBuf.Add(newConfig.listLED_PLC[i]);
+            //        listLEDChangeBuf.Add(ledBuf);
+            //    }
+            //}
+            // Send data to hardware
+            //for (int i = 0; i < listLEDChangeBuf.Count; i++)
+            {
+                for (int j = 0; j < listConnectionHardware.Count; j++)
+                {
+                    if (listConnectionHardware[j].connectionPLCModbus != null)
+                    {
+                        if (newConfig.hardwareID == listConnectionHardware[j].connectionPLCModbus.Get_HardwareID())
+                        {// Send data
+                            listConnectionHardware[j].connectionPLCModbus.Change_LED485_PLC_Data(newConfig.listLED_PLC, newConfig.red, newConfig.green, newConfig.blue);
+                        }
+                    }
+                }
+            }
+        }
+        private void ControlGroup_ChangeSystemPowerData(object sender,  Data.Data_Config_Hardware_Group newConfig)
+        {
+            for (int j = 0; j < listConnectionHardware.Count; j++)
+            {
+                if (listConnectionHardware[j].connectionPLCModbus != null)
+                {
+                    if (newConfig.hardwareID == listConnectionHardware[j].connectionPLCModbus.Get_HardwareID())
+                    {// Send data
+                        listConnectionHardware[j].connectionPLCModbus.Change_SystemPower_Data(newConfig.systemPower);
+                    }
+                }
+            }
+        }
+        private void ControlMusic_GroupChange_EventHandle(object sender, Data.Data_Config_Hardware_Group groupTest)
+        {
+            for (int i = 0; i < listControlGroup.Count; i++)
+            {
+                if ((groupTest.hardwareID == listControlGroup[i].Get_HardwareID()) && (groupTest.groupID == listControlGroup[i].Get_GroupID()))
+                {
+                    groupTest.testMode = false;
+                    listControlGroup[i].Set_NewGroupConfig(groupTest);
+                }
+            }
+        }
+
+        // For connection thread
+        private void Connection_Connected_EventHandle(object sender, int hardwareIDBuf)
+        {
+            Connection_Connected_EventHandle_Support(hardwareIDBuf);
+        }
+        private void Connection_Connected_EventHandle_Support(int hardwareIDBuf)
+        {
+            if (!CheckAccess())
+            {
+                // On a different thread
+                Dispatcher.Invoke(() => Connection_Connected_EventHandle_Support(hardwareIDBuf));
+                return;
+            }
             for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
             {
-                if (dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == plcGID)
+                if (hardwareIDBuf == dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID)
                 {
+                    dataConfig.Get_DataConfigHardware().listHardware[i].serverConnectionState = "Connected";
+                }
+            }
+            uiHardwareConfig.Update_HardwareConnectionState(hardwareIDBuf, "Connected");
+        }
+        private void Connection_Connecting_EventHandle(object sender, int hardwareIDBuf)
+        {
+            //Connection_Connecting_EventHandle_Support(hardwareIDBuf);
+        }
+        private void Connection_Connecting_EventHandle_Support(int hardwareIDBuf)
+        {
+            if (!CheckAccess())
+            {
+                // On a different thread
+                Dispatcher.Invoke(() => Connection_Connecting_EventHandle_Support(hardwareIDBuf));
+                return;
+            }
+            for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+            {
+                if (hardwareIDBuf == dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID)
+                {
+                    dataConfig.Get_DataConfigHardware().listHardware[i].serverConnectionState = "Connecting";
+                }
+            }
+            uiHardwareConfig.Update_HardwareConnectionState(hardwareIDBuf, "Connecting");
+        }
+        private void Connection_Disconnected_EventHandle(object sender, int hardwareIDBuf)
+        {
+            Connection_Disconnected_EventHandle_Support(hardwareIDBuf);
+        }
+        private void Connection_Disconnected_EventHandle_Support(int hardwareIDBuf)
+        {
+            if (!CheckAccess())
+            {
+                // On a different thread
+                Dispatcher.Invoke(() => Connection_Disconnected_EventHandle_Support(hardwareIDBuf));
+                return;
+            }
+            for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+            {
+                if (hardwareIDBuf == dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID)
+                {
+                    dataConfig.Get_DataConfigHardware().listHardware[i].serverConnectionState = "Disconnected";
+                }
+            }
+            uiHardwareConfig.Update_HardwareConnectionState(hardwareIDBuf, "Disconnected");
+        }
+
+            // For sub UI
+        private void UIConfigHardware_ListHardwareSaveButtonClick_EventHandle(object sender, List<Data.Data_Config_Hardware> newListHardware)
+        {
+            {
+                // Delete hardware is not in newList
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {
+                    bool needDeleteCheck = true;
+                    for (int j = 0; j < newListHardware.Count; j++)
+                    {
+                        if ((dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == newListHardware[j].hardwareID) && (dataConfig.Get_DataConfigHardware().listHardware[i].type == newListHardware[j].type))
+                        {
+                            needDeleteCheck = false;
+                            j = newListHardware.Count;
+                        }
+                    }
+                    if (needDeleteCheck)
+                    {
+                        dataConfig.DeleteHardwareByID(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID);
+                        i--;
+                    }
+                }
+                // Edit hardware is change data in newList
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {
+                    for (int j = 0; j < newListHardware.Count; j++)
+                    {
+                        if ((dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == newListHardware[j].hardwareID) && (dataConfig.Get_DataConfigHardware().listHardware[i].type == newListHardware[j].type))
+                        {
+                            dataConfig.Get_DataConfigHardware().listHardware[i].name = newListHardware[j].name;
+                            dataConfig.Get_DataConfigHardware().listHardware[i].opcServerURL = newListHardware[j].opcServerURL;
+                            dataConfig.Get_DataConfigHardware().listHardware[i].artnetServerURL = newListHardware[j].artnetServerURL;
+                            dataConfig.Get_DataConfigHardware().listHardware[i].modbusServerURL = newListHardware[j].modbusServerURL;
+                            dataConfig.EditHardware(dataConfig.Get_DataConfigHardware().listHardware[i]);
+                        }
+                    }
+                }
+                // Add new hardware is not in Get_DataConfigHardware
+                for (int j = 0; j < newListHardware.Count; j++)
+                {
+                    bool needAddCheck = true;
+                    for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                    {
+                        if (dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == newListHardware[j].hardwareID)
+                        {
+                            needAddCheck = false;
+                            i = dataConfig.Get_DataConfigHardware().listHardware.Count;
+                        }
+                    }
+                    if (needAddCheck)
+                    {
+                         Data.Data_Config_Hardware newHardwareBuf = new  Data.Data_Config_Hardware();
+                        newHardwareBuf.hardwareID = newListHardware[j].hardwareID;
+                        newHardwareBuf.type = newListHardware[j].type;
+                        newHardwareBuf.name = newListHardware[j].name;
+                        newHardwareBuf.opcServerURL = newListHardware[j].opcServerURL;
+                        newHardwareBuf.artnetServerURL = newListHardware[j].artnetServerURL;
+                        newHardwareBuf.modbusServerURL = newListHardware[j].modbusServerURL;
+                        {// Creat default option
+                            newHardwareBuf.optionVO_PLC = new Data.Data_Config_Hardware_Option_VO_PLC();
+                            newHardwareBuf.optionVS_PLC = new Data.Data_Config_Hardware_Option_VS_PLC();
+                            newHardwareBuf.optionInverter = new Data.Data_Config_Hardware_Option_Inverter();
+                            newHardwareBuf.optionLED_ArtnetDMX = new Data.Data_Config_Hardware_Option_LED_ArtnetDMX();
+                            newHardwareBuf.optionLED_PLC = new Data.Data_Config_Hardware_Option_LED_PLC();
+                            // Default option for valve stepper
+                            newHardwareBuf.optionVS_PLC.coordAngle = Data.GLOBAL_CONSTANT.HARDWARE_OPTION_VALVESTEPPER_COORDANGLE_DEFAULT;
+                            newHardwareBuf.optionVS_PLC.maxAngle = Data.GLOBAL_CONSTANT.HARDWARE_OPTION_VALVESTEPPER_MAXANGLE_DEFAULT;
+                            newHardwareBuf.optionVS_PLC.maxSpeed = Data.GLOBAL_CONSTANT.HARDWARE_OPTION_VALVESTEPPER_MAXSPEED_DEFAULT;
+                            newHardwareBuf.optionVS_PLC.ratio = Data.GLOBAL_CONSTANT.HARDWARE_OPTION_VALVESTEPPER_RATIO_DEFAULT;
+                            // Default option for inverter
+                            newHardwareBuf.optionInverter.freqMax = Data.GLOBAL_CONSTANT.HARDWARE_OPTION_PUMPANALOG_MAXFREQ_DEFAULT;
+                            newHardwareBuf.optionInverter.freqMin = Data.GLOBAL_CONSTANT.HARDWARE_OPTION_PUMPANALOG_MINFREQ_DEFAULT;
+                        }
+                        {// Creat default list devices
+                            newHardwareBuf.listVO_PLC = new List<Data.Data_Config_Device_VO_PLC>();
+                            newHardwareBuf.listVS_PLC = new List<Data.Data_Config_Device_VS_PLC>();
+                            newHardwareBuf.listInverter = new List<Data.Data_Config_Device_Inverter>();
+                            newHardwareBuf.listLED_ArtnetDMX = new List<Data.Data_Config_Device_LED_ArtnetDMX>();
+                            newHardwareBuf.listLED_PLC = new List<Data.Data_Config_Device_LED_PLC>();
+                            newHardwareBuf.listGroup = new List<Data.Data_Config_Hardware_Group>();
+                        }
+                        dataConfig.AddHardware(newHardwareBuf);
+                    }
+                }
+                MessageBox.Show("Lưu thông tin cấu hình PLC thành công .");
+                uiHardwareConfig.Update_HardwareConfig(dataConfig.Get_DataConfigHardware());
+            }
+            {// Recreat all connection
+                for (int i = 0; i < listConnectionHardware.Count; i++)
+                {// Disconnect all old connections
+                    if (listConnectionHardware[i].connectionPLC != null)
+                    {
+                        listConnectionHardware[i].connectionPLC.Disconnect2OPCUAServer();
+                    }
+                    if (listConnectionHardware[i].connectionPLCModbus != null)
+                    {
+                        listConnectionHardware[i].connectionPLCModbus.Disconnect();
+                        listConnectionHardware[i].connectionPLCModbus.Thread_Stop();
+                    }
+                    if (listConnectionHardware[i].connectionArtNet != null)
+                    {
+                        listConnectionHardware[i].connectionArtNet.Disconnect2Artnet();
+                    }
+                }
+                listConnectionHardware.Clear();
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {
+                    Connection_Hardware connectionHardware = new Connection_Hardware();
                     switch (dataConfig.Get_DataConfigHardware().listHardware[i].type)
                     {
-                        case "Valve Stepper - PLC":
-                            {
-                                uiConfigHardware_VS_PLC.Refresh();
-                                uiConfigHardware_VS_PLC.Update_PLCInfo(dataConfig.Get_DataConfigHardware().listHardware[i]);
-                                mainLayout.Content = uiConfigHardware_VS_PLC;
-                                mainLayout.NavigationService.RemoveBackEntry();
-                            }
-                            break;
                         case "Valve On/Off - PLC":
+                        case "Pump A/D & Power - PLC":
+                        case "LED 485 - PLC":
+                        case "Valve Stepper - PLC":
+                        case "Valve On/Off & Stepper - PLC":
+                        case "Valve Stepper & LED 485 - PLC":
                             {
-                                uiConfigHardware_VO_PLC.Refresh();
-                                uiConfigHardware_VO_PLC.Update_PLCInfo(dataConfig.Get_DataConfigHardware().listHardware[i]);
-                                mainLayout.Content = uiConfigHardware_VO_PLC;
-                                mainLayout.NavigationService.RemoveBackEntry();
+                                connectionHardware.connectionPLCModbus = new Connection.Connection_PLC_Modbus(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID, dataConfig.Get_DataConfigHardware().listHardware[i].modbusServerURL, 502, 1);
+                                connectionHardware.connectionPLCModbus.plcModbusConnected += Connection_Connected_EventHandle;
+                                connectionHardware.connectionPLCModbus.plcModbusConnecting += Connection_Connecting_EventHandle;
+                                connectionHardware.connectionPLCModbus.plcModbusDisconnected += Connection_Disconnected_EventHandle;
+                                //connectionHardware.connectionPLCModbus.Connect();
+                                if (dataConfig.Get_DataConfigHardware().listHardware[i].optionInverter != null)
+                                {
+                                    connectionHardware.connectionPLCModbus.Change_PumpAnalog_PLC_Config(dataConfig.Get_DataConfigHardware().listHardware[i].optionInverter);
+                                }
+                                if (dataConfig.Get_DataConfigHardware().listHardware[i].optionVS_PLC != null)
+                                {
+                                    connectionHardware.connectionPLCModbus.Change_ValveStep_PLC_Config(dataConfig.Get_DataConfigHardware().listHardware[i].optionVS_PLC);
+                                }
+                                connectionHardware.connectionPLCModbus.Thread_Start();
                             }
                             break;
-                        case "LED - ArtnetDMX":
+                        case "LED DMX - Artnet":
                             {
-                                uiConfigHardware_VO_PLC.Refresh();
-                                uiConfigHardware_VO_PLC.Update_PLCInfo(dataConfig.Get_DataConfigHardware().listHardware[i]);
-                                mainLayout.Content = uiConfigHardware_VO_PLC;
-                                mainLayout.NavigationService.RemoveBackEntry();
+                                connectionHardware.connectionArtNet = new Connection.Connection_Artnet(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID, IPAddress.Parse(dataConfig.Get_DataConfigHardware().listHardware[i].artnetServerURL), IPAddress.Parse("255.255.255.0"));
+                                connectionHardware.connectionArtNet.artnetConnected += Connection_Connected_EventHandle;
+                                //connectionHardware.connectionArtNet.Connect2Artnet();
                             }
                             break;
                         default:
                             {
-
+                                MessageBox.Show("Creat connection: Unknown hardwareType: " + dataConfig.Get_DataConfigHardware().listHardware[i].type + ", hardwareID: " + dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID.ToString());
                             }
                             break;
                     }
-                    plcGIDCheck = true;
+                    listConnectionHardware.Add(connectionHardware);
                 }
-            }
-            if (plcGIDCheck == false)
-            {
-                MessageBox.Show("UIConfigHardware_EditButtonClick_EventHandle: Cannot find PLC with hardwareID: " + plcGID.ToString());
+
             }
         }
-        private void UIConfigHardware_DeleteButtonClick_EventHandle(object sender, int plcGID)
+        private void UIConfigHardware_HardwareOptionSaveClick_EventHandle(object sender, Data.Data_Config_Hardware newHardwareOption)
         {
-            Data_Config_Hardware_Config deletedPLC = dataConfig.DeletePLCByGID(plcGID);
-            if (deletedPLC == null)
-            {
-                MessageBox.Show("Xoá PLC thất bại .\nKhông tìm được PLC với hardwareID: " + plcGID + " .");
-            } 
-            else
-            {
-                MessageBox.Show("Xoá " + deletedPLC.name + " thành công.");
-            }
-            // Update new list PLC
-            uiConfigHardware.Update_ListHardware(dataConfig.Get_DataConfigHardware().listHardware);
-        }
-        private void UIConfigHardware_AddButtonClick_EventHandle(object sender, Data_Config_Hardware_Config newPLC)
-        {
-            int newPLCID = dataConfig.AddPLC(newPLC);
-            if (newPLCID > 0)
-            {
-                MessageBox.Show(newPLC.name + "đã được thêm với hardwareID: " + newPLCID.ToString() + ".");
-                for (int i = 0; i < newPLC.listVSA.Count; i++)
-                {
-                    newPLC.listVSA[i].hardwareID = newPLCID;
-                }
-                for (int i = 0; i < newPLC.listInverter.Count; i++)
-                {
-                    newPLC.listInverter[i].hardwareID = newPLCID;
-                }
-                for (int i = 0; i < newPLC.listLED.Count; i++)
-                {
-                    newPLC.listLED[i].hardwareID = newPLCID;
-                }
-            } 
-            else
-            {
-                MessageBox.Show("Thêm PLC thất bại .");
-            }
-            // Update new list PLC
-            uiConfigHardware.Update_ListHardware(dataConfig.Get_DataConfigHardware().listHardware);
-        }
-        private void UIConfigHardware_VO_PLC_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiConfigHardware.Refresh();
-            mainLayout.Content = uiConfigHardware;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIConfigHardware_VO_PLC_SaveButtonClick_EventHandle(object sender, Data_Config_Hardware_Config hardwareConfig)
-        {
-            bool hardwareIDCheck = false;
             for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
             {
-                if (hardwareConfig.hardwareID == dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID)
-                {
-                    hardwareIDCheck = true;
-                    dataConfig.Get_DataConfigHardware().listHardware[i].listVOA.Clear();
-                    for (int j = 0; j < hardwareConfig.listVOA.Count; j++)
-                    {
-                        dataConfig.Get_DataConfigHardware().listHardware[i].listVOA.Add(hardwareConfig.listVOA[j]);
+                if (dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == newHardwareOption.hardwareID)
+                {// Update dataConfig
+                    dataConfig.Get_DataConfigHardware().listHardware[i].optionInverter = newHardwareOption.optionInverter;
+                    dataConfig.Get_DataConfigHardware().listHardware[i].optionLED_ArtnetDMX = newHardwareOption.optionLED_ArtnetDMX;
+                    dataConfig.Get_DataConfigHardware().listHardware[i].optionLED_PLC = newHardwareOption.optionLED_PLC;
+                    dataConfig.Get_DataConfigHardware().listHardware[i].optionVO_PLC = newHardwareOption.optionVO_PLC;
+                    dataConfig.Get_DataConfigHardware().listHardware[i].optionVS_PLC = newHardwareOption.optionVS_PLC;
+                    dataConfig.EditHardware(dataConfig.Get_DataConfigHardware().listHardware[i]);
+                    for (int j = 0; j < listConnectionHardware.Count; j++)
+                    {// Send new config to hardware
+                        if (listConnectionHardware[j].connectionPLCModbus != null)
+                        {
+                            if (listConnectionHardware[j].connectionPLCModbus.Get_HardwareID() == newHardwareOption.hardwareID)
+                            {
+                                switch (newHardwareOption.type)
+                                {
+                                    case "Valve Stepper - PLC":
+                                        {
+                                            listConnectionHardware[j].connectionPLCModbus.Change_ValveStep_PLC_Config(newHardwareOption.optionVS_PLC);
+                                        }
+                                        break;
+                                    case "Pump A/D & Power - PLC":
+                                        {
+                                            listConnectionHardware[j].connectionPLCModbus.Change_PumpAnalog_PLC_Config(newHardwareOption.optionInverter);
+                                        }
+                                        break;
+                                    default:
+                                        {
+
+                                        }
+                                        break;
+                                }
+                            }
+                        }
                     }
-                    Data_Config_Hardware_Config editPLC = dataConfig.EditPLC(dataConfig.Get_DataConfigHardware().listHardware[i]);
-                    if (editPLC == null)
-                    {
-                        MessageBox.Show("Cập nhật thông tin cho PLC thất bại .");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Cập nhật thông tin cho " + editPLC.name + " thành công .");
-                    }
-                    i = dataConfig.Get_DataConfigHardware().listHardware.Count;
+                    MessageBox.Show("Cập nhật cấu hình tuỳ chọn cho " + dataConfig.Get_DataConfigHardware().listHardware[i].name + " thành công");
                 }
             }
-            if (hardwareIDCheck == false)
-            {
-                MessageBox.Show("Cập nhật thông tin cho PLC thất bại. Không thể tìm thấy PLC với ID: " + hardwareConfig.hardwareID + " .");
-            }
         }
-        private void UIConfigHardware_VO_PLC_OnOffTestButtonClick_EventHandle(object sender, Data_Config_Device_VOA valveConfig)
+        private void UIConfigHardware_ReconnectHardwareButtonClick_EventHandle(object sender, int hardwareIDBuf)
         {
             for (int i = 0; i < listConnectionHardware.Count; i++)
-            {
+            {// Disconnect all old connections
                 if (listConnectionHardware[i].connectionPLC != null)
                 {
-                    if (valveConfig.hardwareID == listConnectionHardware[i].connectionPLC.Get_PLCID())
+                    if (listConnectionHardware[i].connectionPLC.Get_PLCID() == hardwareIDBuf)
                     {
-                        listConnectionHardware[i].connectionPLC.ChangeValveInfo_VOA(valveConfig);
+                        listConnectionHardware[i].connectionPLC.Connect2OPCUAServer();
                     }
                 }
-            }
-        }
-        private void UIConfigHardware_VS_PLC_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiConfigHardware.Refresh();
-            mainLayout.Content = uiConfigHardware;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIConfigHardware_VS_PLC_SaveButtonClick_EventHandle(object sender, Data_Config_Hardware_Config hardwareConfig)
-        {
-            bool hardwareIDCheck = false;
-            for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
-            {
-                if (hardwareConfig.hardwareID == dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID)
+                if (listConnectionHardware[i].connectionPLCModbus != null)
                 {
-                    hardwareIDCheck = true;
-                    dataConfig.Get_DataConfigHardware().listHardware[i].listVSA.Clear();
-                    for (int j = 0; j < hardwareConfig.listVSA.Count; j++)
+                    if (listConnectionHardware[i].connectionPLCModbus.Get_HardwareID() == hardwareIDBuf)
                     {
-                        dataConfig.Get_DataConfigHardware().listHardware[i].listVSA.Add(hardwareConfig.listVSA[j]);
+                        listConnectionHardware[i].connectionPLCModbus.Connect();
                     }
-                    Data_Config_Hardware_Config editPLC = dataConfig.EditPLC(dataConfig.Get_DataConfigHardware().listHardware[i]);
-                    if (editPLC == null)
-                    {
-                        MessageBox.Show("Cập nhật thông tin cho PLC thất bại .");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Cập nhật thông tin cho " + editPLC.name + " thành công .");
-                    }
-                    i = dataConfig.Get_DataConfigHardware().listHardware.Count;
                 }
-            }
-            if (hardwareIDCheck == false)
-            {
-                MessageBox.Show("Cập nhật thông tin cho PLC thất bại. Không thể tìm thấy PLC với ID: " + hardwareConfig.hardwareID + " .");
-            }
-        }
-        private void UIConfigHardware_VS_PLC_MoveTestButtonClick_EventHandle(object sender, Data_Config_Device_VSA valveConfig)
-        {
-            for (int i = 0; i < listConnectionHardware.Count; i++)
-            {
-                if (listConnectionHardware[i].connectionPLC != null)
+                if (listConnectionHardware[i].connectionArtNet != null)
                 {
-                    if (valveConfig.hardwareID == listConnectionHardware[i].connectionPLC.Get_PLCID())
+                    if (listConnectionHardware[i].connectionArtNet.Get_HardwareID() == hardwareIDBuf)
                     {
-                        listConnectionHardware[i].connectionPLC.ChangeValveInfo_VSA(valveConfig);
+                        listConnectionHardware[i].connectionArtNet.Connect2Artnet();
                     }
                 }
             }
         }
-        private void UIConfigHardware_VS_PLC_GoHomeButtonClick_EventHandle(object sender, Data_Config_Device_VSA valveConfig)
+        private void UIConfigHardware_GroupTestClick_EventHandle(object sender,  Data.Data_Config_Hardware_Group groupTest)
         {
-            for (int i = 0; i < listConnectionHardware.Count; i++)
+            for (int i = 0; i < listControlGroup.Count; i++)
             {
-                if (listConnectionHardware[i].connectionPLC != null)
+                if ((groupTest.hardwareID == listControlGroup[i].Get_HardwareID()) && (groupTest.groupID == listControlGroup[i].Get_GroupID()))
                 {
-                    if (valveConfig.hardwareID == listConnectionHardware[i].connectionPLC.Get_PLCID())
-                    {
-                        listConnectionHardware[i].connectionPLC.ChangeValveInfo_VSA(valveConfig);
-                    }
+                    groupTest.testMode = true;
+                    listControlGroup[i].Set_NewGroupConfig(groupTest);
                 }
             }
         }
-        private void UIEditMusicEffect_BackButtonClick_EventHandle(object sender, int noUse)
+        private void UIConfigHardware_GroupSaveClick_EventHandle(object sender,  Data.Data_Config_Hardware newHardwareGroupBuf)
         {
-            uiEditPlaylist.Refresh();
-            mainLayout.Content = uiEditPlaylist;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIEditPlaylist_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiRunning.Refresh();
-            mainLayout.Content = uiRunning;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UIEditPlaylist_AddButtonClick_EventHandle(object sender, int noUse)
-        {
-            MessageBox.Show("Vui lòng chờ phần backend viết xong.");
-        }
-        private void UIEditPlaylist_EditButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiMusicEffect.Refresh();
-            mainLayout.Content = uiMusicEffect;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void uiGroupEdit_VS_PLC_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiRunning.Refresh();
-            mainLayout.Content = uiConfigGroup;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void uiGroupEdit_VO_PLC_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiRunning.Refresh();
-            mainLayout.Content = uiConfigGroup;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UILog_BackButtonClick_EventHandle(object sender, int noUse)
-        {
-            uiRunning.Refresh();
-            mainLayout.Content = uiRunning;
-            mainLayout.NavigationService.RemoveBackEntry();
-        }
-        private void UILog_PrevButtonClick_EventHandle(object sender, int noUse)
-        {
-            MessageBox.Show("Vui lòng chờ phần backend viết xong.");
-        }
-        private void UILog_NextButtonClick_EventHandle(object sender, int noUse)
-        {
-            MessageBox.Show("Vui lòng chờ phần backend viết xong.");
-        }
-        private void UILogin_LoginButtonClick_EventHandle(object sender, Data_UserInfo userInfo)
-        {
-            if (dataLogin.Compare_UserNameAndPassword(userInfo.userName, userInfo.password))
-            {
-                uiRunning.Refresh();
-                mainLayout.Content = uiRunning;
-                mainLayout.NavigationService.RemoveBackEntry();
+            {// Update groupList
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {
+                    if (dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID == newHardwareGroupBuf.hardwareID)
+                    {
+                        // Delete all old group
+                        dataConfig.DeleteAllGroupInHardware(dataConfig.Get_DataConfigHardware().listHardware[i].hardwareID);
+                        // Recreat all new group
+                        for (int j = 0; j < newHardwareGroupBuf.listGroup.Count; j++)
+                        {
+                            newHardwareGroupBuf.listGroup[j].hardwareID = newHardwareGroupBuf.hardwareID;
+                            dataConfig.AddHardwareGroup(newHardwareGroupBuf.listGroup[j]);
+                        }
+                        dataConfig.EditHardware(dataConfig.Get_DataConfigHardware().listHardware[i]);
+                        MessageBox.Show("Cập nhật cấu hình nhóm cho " + dataConfig.Get_DataConfigHardware().listHardware[i].name + " thành công");
+                    }
+                }
+                //uiHardwareConfig.Update_HardwareConfig(dataConfig.Get_DataConfigHardware());
             }
-            else
-            {
-                MessageBox.Show("Tên đăng nhập hoặc mật khẩu không đúng.\nVui lòng thử lại.");
+            {// Recreat all control group thread
+                controlMusic.Set_NewMusicConfig(null); // Reset config of music run now
+                for (int i = 0; i < listControlGroup.Count; i++)
+                {// Stop all old thread
+                    listControlGroup[i].Thread_Stop();
+                }
+                listControlGroup.Clear();
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {// Recreat new control group
+                    for (int j = 0; j < dataConfig.Get_DataConfigHardware().listHardware[i].listGroup.Count; j++)
+                    {
+                        Control_Group newControlGroup = new Control_Group(dataConfig.Get_DataConfigHardware().listHardware[i], dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j]);
+                        switch (dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].type)
+                        {
+                            case "Valve Stepper - PLC":
+                            case "Valve On/Off - PLC":
+                            case "Pump Digital - PLC":
+                            case "Pump Analog - PLC":
+                            case "Pump Analog Dual - PLC":
+                            case "LED 485 - PLC":
+                            case "LED DMX - Artnet":
+                            case "System Power":
+                                {
+                                    newControlGroup.Thread_Start();
+                                }
+                                break;
+                            default:
+                                {
+                                    MessageBox.Show("Creat control: Unknown groupType: " + dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].type + ", hardwareID: " + dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].hardwareID.ToString() + ", groupID: " + dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j].groupID.ToString());
+                                }
+                                break;
+                        }
+                        newControlGroup.changeVOPLC_Data += ControlGroup_ChangeVOPLCData;
+                        newControlGroup.changeVSPLC_Data += ControlGroup_ChangeVSPLCData;
+                        newControlGroup.changePumpDigital_Data += ControlGroup_ChangePumpDigitalData;
+                        newControlGroup.changePumpAnalog_Data += ControlGroup_ChangePumpAnalogData;
+                        newControlGroup.changeLEDArtnet_Data += ControlGroup_ChangeLedArtnetData;
+                        newControlGroup.changeLEDPLC_Data += ControlGroup_ChangeLEDPLCData;
+                        newControlGroup.changeSystemPower_Data += ControlGroup_ChangeSystemPowerData;
+                        listControlGroup.Add(newControlGroup);
+                    }
+                }
+            }
+            {// Update group name list for editor
+                List<Data.Data_Config_Hardware_Group> listGroupBufForEditor = new List<Data.Data_Config_Hardware_Group>();
+                listGroupBufForEditor.Clear();
+                for (int i = 0; i < dataConfig.Get_DataConfigHardware().listHardware.Count; i++)
+                {
+                    for (int j = 0; j < dataConfig.Get_DataConfigHardware().listHardware[i].listGroup.Count; j++)
+                    {
+                        listGroupBufForEditor.Add(dataConfig.Get_DataConfigHardware().listHardware[i].listGroup[j]);
+                    }
+                }
+                uiEffectEditor.UpdateListGroupConfig(listGroupBufForEditor);
+                uiMusicEditor.UpdateListGroupConfig(listGroupBufForEditor);
+                uiPlaylist.UpdateListGroupConfig(listGroupBufForEditor);
             }
         }
-        private void UIRunning_BackButtonClick_EventHandle(object sender, int noUse)
+        private void UIEffectEditor_SaveEffectListClick_EventHandle(object sender, List<Data.Data_Config_Effect> newListEffect)
         {
-            uiLogin.Refresh();
-            mainLayout.Content = uiLogin;
+            try
+            {
+                dataConfig.DeleteAllEffect();
+                for (int i = 0; i < newListEffect.Count; i++)
+                {
+                    dataConfig.AddEffect(newListEffect[i]);
+                }
+                uiEffectEditor.UpdateListEffectConfig(dataConfig.Get_DataConfigPlaylist().listEffect);
+                uiMusicEditor.UpdateListEffectConfig(dataConfig.Get_DataConfigPlaylist().listEffect);
+                MessageBox.Show("Lưu thông tin hiệu ứng thành công");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+        }
+        private void UIMusicEditor_PlayMusicClick_EventHandle(object sender, Data.Data_Config_Music newMusicRunning)
+        {
+            try
+            {
+                // Stop other music
+                if (sender == uiMusicEditor)
+                {
+                    uiPlaylist.StopPlay();
+                }
+                if (sender == uiPlaylist)
+                {
+                    uiMusicEditor.StopPlay();
+                }
+                // Set new config for controlMusic thread
+                if (controlMusic != null)
+                {
+                    controlMusic.Set_NewMusicConfig(newMusicRunning);
+                }
+                // Creat log
+                dataLog.CreatLog(Data.GLOBAL_CONSTANT.LOG_TYPE_MUSIC_START, "Bắt đầu phát bản nhạc: " + newMusicRunning.musicPath);
+            }
+            catch
+            {
+
+            }
+        }
+        private void UIMusicEditor_StopMusicClick_EventHandle(object sender, int noUse)
+        {
+            try
+            {
+                if (controlMusic != null)
+                {
+                    controlMusic.Set_NewMusicConfig(null);
+                }
+                for (int i = 0; i < listControlGroup.Count; i++)
+                {
+                    listControlGroup[i].SetEffectToSpecialStop();
+                }
+                // Creat log
+                dataLog.CreatLog(Data.GLOBAL_CONSTANT.LOG_TYPE_MUSIC_STOP, "Đã dừng phát nhạc");
+            }
+            catch
+            {
+
+            }
+        }
+        private void UIMusicEditor_PlayMusicTimeUpdate_EventHandle(object sender, double newMusicTime)
+        {
+            UIMusicEditor_PlayMusicTimeUpdate_EventHandle_Support(newMusicTime);
+        }
+        private void UIMusicEditor_PlayMusicTimeUpdate_EventHandle_Support(double newMusicTime)
+        {
+            if (!CheckAccess())
+            {
+                // On a different thread
+                Dispatcher.Invoke(() => UIMusicEditor_PlayMusicTimeUpdate_EventHandle_Support(newMusicTime));
+                return;
+            }
+            try
+            {
+                if (controlMusic != null)
+                {
+                    controlMusic.Set_NewMusicTime(newMusicTime);
+                }
+                for (int i = 0; i < listControlGroup.Count; i++)
+                {
+                    listControlGroup[i].Set_NewMusicTime(newMusicTime);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Check it now");
+            }
+        }
+        private void UIMusicEditor_SaveMusicEffectClick_EventHandle(object sender,  Data.Data_Config_Music newMusicRunning)
+        {
+            dataConfig.EditDataConfigMusic(newMusicRunning);
+            uiMusicEditor.UpdateListMusicConfig(dataConfig.Get_DataConfigPlaylist().listMusic);
+            uiPlaylist.UpdateListMusicConfig(dataConfig.Get_DataConfigPlaylist().listMusic);
+            MessageBox.Show("Lưu thông tin hiệu ứng thành công .");
+        }
+        private void UIPlayList_PlaylistModeSave_EventHandle(object sender, Data.Data_Config_Playlist_Mode newPlaylistMode)
+        {
+            try
+            {
+                dataConfig.EditPlaylistMode(newPlaylistMode);
+                MessageBox.Show("Lưu chế độ phát nhạc thành công");
+            }
+            catch
+            {
+
+            }
+        }
+        private void UILog_ClearLogClick_EventHandle(object sender, int noUse)
+        {
+            try
+            {
+                dataLog.DeleteAllLog();
+                uiLog.RefreshListLogFiles();
+                uiLog.RefreshListLogs();
+            }
+            catch
+            {
+
+            }
+        }
+        private void UILog_ChosenLogFileChanged_EventHandle(object sender, string newLogFilePath)
+        {
+            try
+            {
+                List<Data.Data_Log_Info> newListLog = dataLog.GetLogByPath(newLogFilePath);
+                if (newListLog != null)
+                {
+                    uiLog.UpdateListLogs(newListLog);
+                }
+                else
+                {
+                    MessageBox.Show("Không đọc được dữ liệu từ file: " + newLogFilePath);
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+
+
+        // For Main UI        
+        private void HardwareConfig_ButtonClick_EventHandle(object sender, RoutedEventArgs e)
+        {
+            uiHardwareConfig.Update_HardwareConfig(dataConfig.Get_DataConfigHardware());
+            mainLayout.Content = uiHardwareConfig;
             mainLayout.NavigationService.RemoveBackEntry();
         }
-        private void UIRunning_ConfigGroupButtonClick_EventHandle(object sender, int noUse)
+        private void EffectEditor_ButtonClick_EventHandle(object sender, RoutedEventArgs e)
         {
-            uiConfigGroup.Refresh();
-            uiConfigGroup.Update_ListGroup(dataConfig.Get_DataConfigHardware().listGroup);
-            mainLayout.Content = uiConfigGroup;
+            mainLayout.Content = uiEffectEditor;
             mainLayout.NavigationService.RemoveBackEntry();
         }
-        private void UIRunning_ConfigHardwareButtonClick_EventHandle(object sender, int noUse)
+        private void MusicEditor_ButtonClick_EventHandle(object sender, RoutedEventArgs e)
         {
-            uiConfigHardware.Refresh();
-            uiConfigHardware.Update_ListHardware(dataConfig.Get_DataConfigHardware().listHardware);
-            mainLayout.Content = uiConfigHardware;
+            //uiPlaylist.StopPlay();
+            mainLayout.Content = uiMusicEditor;
             mainLayout.NavigationService.RemoveBackEntry();
         }
-        private void UIRunning_EditPlaylistButtonClick_EventHandle(object sender, int noUse)
+        private void Playlist_ButtonClick_EventHandle(object sender, RoutedEventArgs e)
         {
-            uiEditPlaylist.Refresh();
-            mainLayout.Content = uiEditPlaylist;
+            //uiMusicEditor.StopPlay();
+            mainLayout.Content = uiPlaylist;
             mainLayout.NavigationService.RemoveBackEntry();
         }
-        private void UIRunning_LogButtonClick_EventHandle(object sender, int noUse)
+        private void History_ButtonClick_EventHandle(object sender, RoutedEventArgs e)
         {
-            uiLog.Refresh();
             mainLayout.Content = uiLog;
             mainLayout.NavigationService.RemoveBackEntry();
         }
-        // Public methods -------------------------------------------------------------------------------
-        void Window_Closing(object sender, CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
+            // Sub UI exit
+            {
+                uiHardwareConfig.ApplicationExit();
+                uiMusicEditor.ApplicationExit();
+                uiPlaylist.ApplicationExit();
+                uiLog.ApplicationExit();
+            }
+            // Disconnect all connection and stop sub thread of them
+            {
+                for (int i = 0; i < listConnectionHardware.Count; i++)
+                {
+                    if (listConnectionHardware[i].connectionPLC != null)
+                    {
+                        listConnectionHardware[i].connectionPLC.Disconnect2OPCUAServer();
+                    }
+                    if (listConnectionHardware[i].connectionPLCModbus != null)
+                    {
+                        listConnectionHardware[i].connectionPLCModbus.Disconnect();
+                        listConnectionHardware[i].connectionPLCModbus.Thread_Stop();
+                    }
+                    if (listConnectionHardware[i].connectionArtNet != null)
+                    {
+                        listConnectionHardware[i].connectionArtNet.Disconnect2Artnet();
+                    }
+                }
+                // Close all control threads
+                for (int i = 0; i < listControlGroup.Count; i++)
+                {
+                    listControlGroup[i].Thread_Stop();
+                }
+                controlMusic.Thread_Stop();
+            }
+            // Others
+            {
+                dataLog.CreatLog(Data.GLOBAL_CONSTANT.LOG_TYPE_SYSTEM_STOP, "Đã đóng phần mềm");
+            }
         }
+        
+        // Public methods -------------------------------------------------------------------------------
+
     }
 }

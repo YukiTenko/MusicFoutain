@@ -7,10 +7,52 @@
         mc:Ignorable="d"
         d:DesignHeight="720" d:DesignWidth="1280"
         Closing="Window_Closing"
-        Title="Demo hệ thống nhạc nước" >
+        Title="Phần mềm nhạc nước - Ver 1.0">
     <!-- WindowState="Maximized" -->
     <!-- WindowStyle="None" -->
-    <Grid>
-        <Frame x:Name="mainLayout" Margin="0"/>        
+    <Grid Background="GhostWhite" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="9*"/>
+        </Grid.RowDefinitions>
+        <ToolBarPanel>
+            <ToolBarTray DockPanel.Dock="Top" Background="DarkGray">
+                <ToolBar VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="DarkCyan">
+                    <Button ToolTip="Hardware Config" Click="HardwareConfig_ButtonClick_EventHandle" >
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/Icon/hardware.png" Width="40"/>
+                            <TextBlock  HorizontalAlignment="Center" Text="Cấu hình phần cứng" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                    <Button  Margin="10,0,10,0" Click="EffectEditor_ButtonClick_EventHandle">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/Icon/effects.png" Width="40" />
+                            <TextBlock  HorizontalAlignment="Center" Text="Chỉnh sửa hiệu ứng" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                    <Button  Margin="10,0,10,0" Click="MusicEditor_ButtonClick_EventHandle">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/Icon/music.png" Width="40" />
+                            <TextBlock  HorizontalAlignment="Center" Text="Chỉnh sửa bản nhạc" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                    <Button  Margin="10,0,10,0" Click="Playlist_ButtonClick_EventHandle">
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/Icon/playlist.png" Width="40" />
+                            <TextBlock  HorizontalAlignment="Center" Text="Danh sách phát" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                    <Button  Margin="10,0,10,0"  Click="History_ButtonClick_EventHandle" >
+                        <StackPanel Orientation="Vertical">
+                            <Image Source="/Icon/log.png" Width="40" />
+                            <TextBlock  HorizontalAlignment="Center" Text="Lịch sử hoạt động" Foreground="White"/>
+                        </StackPanel>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+
+        </ToolBarPanel>
+        <Frame x:Name="mainLayout" Grid.Row="1"/>
     </Grid>
+
 </Window>

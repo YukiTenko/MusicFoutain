@@ -454,52 +454,31 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Connection_Artnet.cs" />
-    <Compile Include="Connection_PLC.cs" />
-    <Compile Include="Control_Algorithm.cs" />
-    <Compile Include="Data_Config.cs" />
-    <Compile Include="Data_Log.cs" />
-    <Compile Include="Data_Login.cs" />
-    <Compile Include="GLOBAL_CONSTANT.cs" />
-    <Compile Include="Test.xaml.cs">
-      <DependentUpon>Test.xaml</DependentUpon>
+    <Compile Include="Connection\Connection_Artnet.cs" />
+    <Compile Include="Connection\Connection_PLC.cs" />
+    <Compile Include="Connection\Connection_PLC_Modbus.cs" />
+    <Compile Include="Control\Control_Music.cs" />
+    <Compile Include="Control\Control_Group.cs" />
+    <Compile Include="Data\Data_Config.cs" />
+    <Compile Include="Data\Data_Log.cs" />
+    <Compile Include="Data\Data_Login.cs" />
+    <Compile Include="Data\GLOBAL_CONSTANT.cs" />
+    <Compile Include="Connection\OPC_UAClientHelperAPI.cs" />
+    <Compile Include="UI\Effect\UI_EffectEditor.xaml.cs">
+      <DependentUpon>UI_EffectEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OPC_UAClientHelperAPI.cs" />
-    <Compile Include="UI_ConfigGroup.xaml.cs">
-      <DependentUpon>UI_ConfigGroup.xaml</DependentUpon>
+    <Compile Include="UI\MyIValueConverter.cs" />
+    <Compile Include="UI\Hardware\Group\UI_Group_ValveOnOffAndStep_PLC.xaml.cs">
+      <DependentUpon>UI_Group_ValveOnOffAndStep_PLC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_ConfigHardwareOption.xaml.cs">
-      <DependentUpon>UI_ConfigHardwareOption.xaml</DependentUpon>
+    <Compile Include="UI\Hardware\Group\UI_Group_ValveStepAndLED485_PLC.xaml.cs">
+      <DependentUpon>UI_Group_ValveStepAndLED485_PLC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_ConfigHardware_VOA.xaml.cs">
-      <DependentUpon>UI_ConfigHardware_VOA.xaml</DependentUpon>
+    <Compile Include="UI\Hardware\Setting\UI_Setting_PumpAD_PLC.xaml.cs">
+      <DependentUpon>UI_Setting_PumpAD_PLC.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI_ConfigHardware_VSA.xaml.cs">
-      <DependentUpon>UI_ConfigHardware_VSA.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_EditMusicEffect.xaml.cs">
-      <DependentUpon>UI_EditMusicEffect.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_ConfigHardware.xaml.cs">
-      <DependentUpon>UI_ConfigHardware.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_EditPlaylist.xaml.cs">
-      <DependentUpon>UI_EditPlaylist.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_GroupEdit_VO_PLC.xaml.cs">
-      <DependentUpon>UI_GroupEdit_VO_PLC.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_GroupEdit_VS_PLC.xaml.cs">
-      <DependentUpon>UI_GroupEdit_VS_PLC.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Log.xaml.cs">
-      <DependentUpon>UI_Log.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Login.xaml.cs">
+    <Compile Include="UI\UI_Login.xaml.cs">
       <DependentUpon>UI_Login.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI_Running.xaml.cs">
-      <DependentUpon>UI_Running.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -509,61 +488,120 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="UI\Hardware\Setting\UI_Setting_ValveStep_PLC.xaml.cs">
+      <DependentUpon>UI_Setting_ValveStep_PLC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\UI_Unknown.xaml.cs">
+      <DependentUpon>UI_Unknown.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\Group\UI_Group_PumpADAndPower_PLC.xaml.cs">
+      <DependentUpon>UI_Group_PumpADAndPower_PLC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\Group\UI_Group_LED485_PLC.xaml.cs">
+      <DependentUpon>UI_Group_LED485_PLC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\Group\UI_Group_LEDDMX_Artnet.xaml.cs">
+      <DependentUpon>UI_Group_LEDDMX_Artnet.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\Group\UI_Group_ValveStep_PLC.xaml.cs">
+      <DependentUpon>UI_Group_ValveStep_PLC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\Group\UI_Group_ValveOnOff_PLC.xaml.cs">
+      <DependentUpon>UI_Group_ValveOnOff_PLC.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\UI_HardwareConfig.xaml.cs">
+      <DependentUpon>UI_HardwareConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Hardware\ListHardware\UI_ListHardware.xaml.cs">
+      <DependentUpon>UI_ListHardware.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\UI_Wellcome.xaml.cs">
+      <DependentUpon>UI_Wellcome.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Music\UI_MusicEditor.xaml.cs">
+      <DependentUpon>UI_MusicEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Log\UI_Log.xaml.cs">
+      <DependentUpon>UI_Log.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Playlist\UI_Playlist.xaml.cs">
+      <DependentUpon>UI_Playlist.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Test.xaml">
+    <Page Include="UI\Effect\UI_EffectEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_ConfigGroup.xaml">
+    <Page Include="UI\Hardware\Group\UI_Group_ValveOnOffAndStep_PLC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_ConfigHardwareOption.xaml">
+    <Page Include="UI\Hardware\Group\UI_Group_ValveStepAndLED485_PLC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_ConfigHardware_VOA.xaml">
+    <Page Include="UI\Hardware\Setting\UI_Setting_PumpAD_PLC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI_ConfigHardware_VSA.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_EditMusicEffect.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI_ConfigHardware.xaml">
+    <Page Include="UI\Hardware\Setting\UI_Setting_ValveStep_PLC.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI_EditPlaylist.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\UI_Unknown.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI_GroupEdit_VO_PLC.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\Hardware\Group\UI_Group_PumpADAndPower_PLC.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI_GroupEdit_VS_PLC.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\Hardware\Group\UI_Group_LED485_PLC.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI_Log.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\Hardware\Group\UI_Group_LEDDMX_Artnet.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI_Login.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\Hardware\Group\UI_Group_ValveStep_PLC.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
-    <Page Include="UI_Running.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="UI\Hardware\Group\UI_Group_ValveOnOff_PLC.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Hardware\UI_HardwareConfig.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Hardware\ListHardware\UI_ListHardware.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\UI_Wellcome.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\UI_Login.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Music\UI_MusicEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Log\UI_Log.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\Playlist\UI_Playlist.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -612,37 +650,53 @@
     <Resource Include="Icon\Icon1.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Image\Background.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Image\Back.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Image\Next.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Image\Prev.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Image\Down.png" />
-    <Resource Include="Image\Edit.png" />
-    <Resource Include="Image\Up.png" />
-    <Resource Include="Image\Folder.png" />
-    <Resource Include="Image\Add.png" />
-    <Resource Include="Image\Delete.png" />
-    <Resource Include="Image\Speaker 2.png" />
-    <Resource Include="Image\RepeatOne.png" />
-    <Resource Include="Image\Shuffle.png" />
-    <Resource Include="Image\Pause.png" />
-    <Resource Include="Image\Speaker.png" />
-    <Resource Include="Image\Music.jpg" />
-    <Resource Include="Image\Off.png" />
-    <Resource Include="Image\On.png" />
-    <Resource Include="Image\Copy.png" />
-    <Resource Include="Image\Logo.png" />
-    <Resource Include="Image\Paste.png" />
-    <Resource Include="Image\Save.png" />
-    <Resource Include="Image\Play.png" />
+    <Resource Include="Icon\Config.png" />
+    <Resource Include="Icon\history.png" />
+    <Resource Include="Icon\setting.png" />
+    <Resource Include="Icon\upLoad.png" />
+    <Resource Include="Images\AppImages\Config.ico" />
+    <Resource Include="Images\AppImages\icon_connection.ico" />
+    <Resource Include="Images\AppImages\icon_events.ico" />
+    <Resource Include="Images\AppImages\icon_main.ico" />
+    <Resource Include="Images\AppImages\icon_Matrix.ico" />
+    <Resource Include="Images\AppImages\icon_nodes.ico" />
+    <Resource Include="Images\AppImages\icon_rw_tag.ico" />
+    <Resource Include="Images\AppImages\icon_scan.ico" />
+    <Resource Include="Images\AppImages\icon_settings.ico" />
+    <Resource Include="Images\AppImages\icon_write.ico" />
+    <Resource Include="Images\AppImages\P_FS10_XX_01372E.tif" />
+    <Resource Include="Images\AppImages\tester_data.ico" />
+    <Resource Include="Images\AppImages\tester_data.png" />
+    <Resource Include="Images\AppImages\tester_edit.png" />
+    <Resource Include="Images\AppImages\tester_old.png" />
+    <Resource Include="Images\AppImages\tester_read.png" />
+    <Resource Include="Images\AppImages\tester_settings.png" />
+    <Resource Include="Images\OpcImages\opc_browse.png" />
+    <Resource Include="Images\OpcImages\opc_browse_online.png" />
+    <Resource Include="Images\OpcImages\opc_datatype.png" />
+    <Resource Include="Images\OpcImages\opc_error.png" />
+    <Resource Include="Images\OpcImages\opc_method.png" />
+    <Resource Include="Images\OpcImages\opc_object.png" />
+    <Resource Include="Images\OpcImages\opc_objecttype.png" />
+    <Resource Include="Images\OpcImages\opc_property.png" />
+    <Resource Include="Images\OpcImages\opc_reftype.png" />
+    <Resource Include="Images\OpcImages\opc_success.png" />
+    <Resource Include="Images\OpcImages\opc_treefolder.png" />
+    <Resource Include="Images\OpcImages\opc_type.png" />
+    <Resource Include="Images\OpcImages\opc_variable.png" />
+    <Resource Include="Images\OpcImages\opc_variabletype.png" />
+    <Resource Include="Images\OpcImages\opc_view.png" />
+    <Resource Include="Images\OpcImages\opc_warning.png" />
+    <Resource Include="Images\Background.png" />
+    <Resource Include="Images\Music.jpg" />
+    <Resource Include="Images\Devices\pump.jpg" />
+    <Resource Include="Images\Devices\Valve1D.jpg" />
+    <Resource Include="Icon\music.png" />
+    <Resource Include="Icon\hardware.png" />
+    <Resource Include="Icon\effects.png" />
+    <Resource Include="Icon\playlist.png" />
+    <Resource Include="Icon\log.png" />
+    <Resource Include="Icon\group.png" />
     <Content Include="Media\Test.mp3" />
   </ItemGroup>
   <ItemGroup>
@@ -663,7 +717,20 @@
     <PackageReference Include="Haukcode.ArtNet">
       <Version>1.3.4</Version>
     </PackageReference>
+    <PackageReference Include="NAudio">
+      <Version>2.2.1</Version>
+    </PackageReference>
+    <PackageReference Include="NModbus">
+      <Version>3.0.81</Version>
+    </PackageReference>
+    <PackageReference Include="ScottPlot">
+      <Version>4.1.68</Version>
+    </PackageReference>
+    <PackageReference Include="ScottPlot.WPF">
+      <Version>4.1.68</Version>
+    </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
