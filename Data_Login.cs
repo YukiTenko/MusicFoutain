@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace MusicFountain
+namespace MusicFountain.Data
 {
     public class Data_UserInfo
     {
@@ -22,7 +22,7 @@ namespace MusicFountain
     public partial class Data_Login
     {
         // Variables
-        List_UserInfo listUser;
+        private List_UserInfo listUser;
 
         public Data_Login()
         {

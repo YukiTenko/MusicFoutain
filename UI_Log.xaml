@@ -1,14 +1,44 @@
-﻿<Page x:Class="MusicFountain.UI_Log"
+﻿<Page x:Class="MusicFountain.UI.Log.UI_Log"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:MusicFountain"
+      xmlns:local="clr-namespace:MusicFountain.UI"
       mc:Ignorable="d" 
-        d:DesignHeight="720" d:DesignWidth="1280"
-      Title="UI_Log">
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="UI_History">
 
-    <Grid x:Name="mainLayout">
-        
+    <Page.Resources>
+        <local:ColorLogTypeConverter x:Key="ColorLogTypeConverter"/>
+    </Page.Resources>
+    
+    <Grid Background="AliceBlue">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="9*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox x:Name="logFileSelection_ComboBox" Grid.Row="0" Height="30" SelectionChanged="LogFileSelection_ComboBoxChanged_EventHandle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Button Content="Refresh" Click="Refresh_ButtonClick_EventHandle" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Content="Xoá hết log" Click="ClearLog_ButtonClick_EventHandle" Grid.Column="3" Width="100" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <DataGrid x:Name="listLog_DataGrid" Grid.Row="1" AutoGenerateColumns="False"  FontSize="16">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="1*" Header="ID" Binding="{Binding id}" CanUserReorder="False" CanUserResize="False"/>
+                <DataGridTextColumn Width="3*" Header="Thời gian" Binding="{Binding time}" CanUserReorder="False" CanUserResize="False"/>
+                <DataGridTextColumn Width="9*" Header="Sự kiện" Binding="{Binding text}" CanUserReorder="False" CanUserResize="False"/>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{Binding type, Converter={StaticResource ColorLogTypeConverter}}" />
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
     </Grid>
 </Page>

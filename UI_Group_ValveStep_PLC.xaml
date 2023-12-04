@@ -1,0 +1,51 @@
+﻿<Page x:Class="MusicFountain.UI.Hardware.Group.UI_Group_ValveStep_PLC"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MusicFountain.UI.Hardware.Group"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="1280"
+      Title="UI_Group_ValveStep_PLC">
+
+    <Grid Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <DataGrid Name ="listGroup_DataGrid" Grid.Row="1" AutoGenerateColumns="False"  
+                  FontSize="16" CanUserReorderColumns="False" CanUserResizeColumns="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Width="1*" Header="ID" Binding="{Binding id}" />
+                <DataGridTextColumn Width="3*" Header="Tên nhóm" Binding="{Binding Name}"/>
+                <DataGridComboBoxColumn x:Name ="startDev_ComboBox" 
+                                        SelectedItemBinding="{Binding startDev}" Width="1.5*" Header="Van BĐ"  />
+                <DataGridComboBoxColumn x:Name ="endDev_ComboBox" 
+                                        SelectedItemBinding="{Binding endDev}" Width="1.5*" Header="Van KT" />
+                <DataGridComboBoxColumn x:Name ="effect_ComboBox"      
+                                        SelectedItemBinding="{Binding Command}" Width="3*" Header="Hiệu ứng"  />
+                <DataGridTextColumn Width="1*" Header="Tốc độ" Binding="{Binding Speed}" />
+                <DataGridTextColumn Width="1*" Header="T  trễ (ms)" Binding="{Binding DelayT}"/>
+                <DataGridTextColumn Width="1*" Header="T giữ (ms)" Binding="{Binding HoldT}" />
+                <DataGridTextColumn Width="1*" Header="Góc BĐ" Binding="{Binding PosStart}" />
+                <DataGridTextColumn Width="1*" Header="Góc KT" Binding="{Binding PosEnd}" />
+                <DataGridTemplateColumn Header="Test" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="GroupTest_ButtonClick_EventHandle">Test</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <GroupBox Header="Group Process" Grid.Row="0" Grid.Column="1">
+            <Grid >
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Lưu" Click="GroupSave_ButtonClick_EventHandle" Width="100" Height="25" HorizontalAlignment="Left" Margin="2"/>
+                </StackPanel>
+
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Page>

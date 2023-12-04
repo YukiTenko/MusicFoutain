@@ -1,0 +1,54 @@
+﻿<Page x:Class="MusicFountain.UI.Hardware.Setting.UI_Setting_PumpAD_PLC"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MusicFountain.UI.Hardware.Setting"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="UI_Setting_PumpAD_PLC">
+
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.15*"/>
+            <RowDefinition Height="0.08*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+
+        <Image Grid.Column="1" HorizontalAlignment="Center" Height="409" Margin="0,83,0,0" Grid.Row="2" VerticalAlignment="Top" Width="495" Source="/Images/Devices/pump.jpg"/>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" Margin="10" Background="#FFC4EDE7">
+            <Label x:Name="hardwareName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="5" 
+               Content="Cấu hình tham số cho loại Inverter" 
+               HorizontalAlignment="Center" VerticalAlignment="Center" 
+               FontSize="18" FontWeight="Bold" Margin="0,10,0,0" />
+        </StackPanel>
+
+        <Button Grid.Column="0" Grid.Row="1" Content="Lưu" Click="Update_Inverter_Option" Margin="10" FontSize="16"/>
+
+        <GroupBox Header="Tham số cho loại Inverter" Grid.Row="2" Background="#FFF7F7F7" FontSize="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.1*"/>
+                    <RowDefinition Height="0.1*"/>
+                    <RowDefinition Height="0.1*"/>
+                    <RowDefinition Height="0.1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Max (%)"/>
+                <TextBox x:Name="freqMax"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2"/>
+                <Label  Grid.Row="1" Grid.Column="0" Content="Min (%)" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                <TextBox x:Name="freqMin" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2"/>
+            </Grid>
+        </GroupBox>
+
+    </Grid>
+</Page>

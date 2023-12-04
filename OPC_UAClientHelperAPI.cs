@@ -352,7 +352,7 @@ namespace Siemens.UAClientHelper
 
         /// <summary>Ads a monitored item to an existing subscription</summary>
         /// <param name="subscription">The subscription</param>
-        /// <param name="nodeIdString">The node Id as string</param>
+        /// <param name="nodeIdString">The node id as string</param>
         /// <param name="itemName">The name of the item to add</param>
         /// <param name="samplingInterval">The sampling interval</param>
         /// <returns>The added item</returns>
@@ -365,7 +365,7 @@ namespace Siemens.UAClientHelper
             monitoredItem.DisplayName = itemName;
             //Set the NodeId of the item
             monitoredItem.StartNodeId = nodeIdString;
-            //Set the attribute Id (value here)
+            //Set the attribute id (value here)
             monitoredItem.AttributeId = Attributes.Value;
             //Set reporting mode
             monitoredItem.MonitoringMode = MonitoringMode.Reporting;
@@ -386,7 +386,7 @@ namespace Siemens.UAClientHelper
 
         /// <summary>Ads a monitored event item to an existing subscription</summary>
         /// <param name="subscription">The subscription</param>
-        /// <param name="nodeIdString">The node Id as string</param>
+        /// <param name="nodeIdString">The node id as string</param>
         /// <param name="itemName">The name of the item to add</param>
         /// <param name="samplingInterval">The sampling interval</param>
         /// <param name="filter">The event filter</param>
@@ -400,7 +400,7 @@ namespace Siemens.UAClientHelper
             monitoredItem.DisplayName = itemName;
             //Set the NodeId of the item
             monitoredItem.StartNodeId = nodeIdString;
-            //Set the attribute Id (value here)
+            //Set the attribute id (value here)
             monitoredItem.AttributeId = Attributes.EventNotifier;
             //Set reporting mode
             monitoredItem.MonitoringMode = MonitoringMode.Reporting;
@@ -447,8 +447,8 @@ namespace Siemens.UAClientHelper
         #endregion
 
         #region Read/Write
-        /// <summary>Reads a node by node Id</summary>
-        /// <param name="nodeIdString">The node Id as string</param>
+        /// <summary>Reads a node by node id</summary>
+        /// <param name="nodeIdString">The node id as string</param>
         /// <returns>The read node</returns>
         /// <exception cref="Exception">Throws and forwards any exception with short error description.</exception>
         public Node ReadNode(String nodeIdString)
@@ -462,8 +462,8 @@ namespace Siemens.UAClientHelper
             return node;
         }
 
-        /// <summary>Reads a node by node Id</summary>
-        /// <param name="nodeIdString">The node Id as string</param>
+        /// <summary>Reads a node by node id</summary>
+        /// <param name="nodeIdString">The node id as string</param>
         /// <returns>A dictionary containing the attribute values of the node using the attribute uint identifier as key; 
         /// <exception cref="Exception">Throws and forwards any exception with short error description.</exception>
         public Dictionary<uint, DataValue> ReadNodeAttributes(String nodeIdString)
@@ -709,8 +709,8 @@ namespace Siemens.UAClientHelper
         #endregion
 
         #region Read/Write Struct/UDT
-        /// <summary>Reads a struct or UDT by node Id</summary>
-        /// <param name="nodeIdString">The node Id as strings</param>
+        /// <summary>Reads a struct or UDT by node id</summary>
+        /// <param name="nodeIdString">The node id as strings</param>
         /// <returns>The read struct/UDT elements as a list of string[3]; string[0] = tag name, string[1] = value, string[2] = opc data type</returns>
         /// <exception cref="Exception">Throws and forwards any exception with short error description.</exception>
         public List<string[]> ReadStructUdt(String nodeIdString)
@@ -755,8 +755,8 @@ namespace Siemens.UAClientHelper
             return resultStringList;
         }
 
-        /// <summary>Writes data to a struct or UDT by node Id</summary>
-        /// <param name="nodeIdString">The node Id as strings</param>
+        /// <summary>Writes data to a struct or UDT by node id</summary>
+        /// <param name="nodeIdString">The node id as strings</param>
         /// <param name="dataToWrite">The data to write as string[3]; string[0] = tag name, string[1] = value, string[2] = opc data type</param>
         /// <exception cref="Exception">Throws and forwards any exception with short error description.</exception>
         public void WriteStructUdt(String nodeIdString, List<string[]> dataToWrite)
@@ -928,7 +928,7 @@ namespace Siemens.UAClientHelper
 
         #region Methods
         /// <summary>Get information about a method's input and output arguments</summary>
-        /// <param name="nodeIdString">The node Id of a method as strings</param>
+        /// <param name="nodeIdString">The node id of a method as strings</param>
         /// <returns>Argument informations as strings</returns>
         /// <exception cref="Exception">Throws and forwards any exception with short error description.</exception>
         public List<string> GetMethodArguments(String nodeIdString)
@@ -1068,8 +1068,8 @@ namespace Siemens.UAClientHelper
         }
 
         /// <summary>Calls a method</summary>
-        /// <param name="methodIdString">The node Id as strings</param>
-        /// <param name="objectIdString">The object Id as strings</param>
+        /// <param name="methodIdString">The node id as strings</param>
+        /// <param name="objectIdString">The object id as strings</param>
         /// <param name="inputData">The input argument data</param>
         /// <returns>The list of output arguments</returns>
         /// <exception cref="Exception">Throws and forwards any exception with short error description.</exception>
@@ -1606,7 +1606,10 @@ namespace Siemens.UAClientHelper
                         string arrayDimensions = "";
                         if (structureField.ValueRank == ValueRanks.OneDimension)
                         {
-                            arrayDimensions = structureField.ArrayDimensions[0].ToString();
+                            //MessageBox.Show(structureField.ArrayDimensions.Count.ToString());
+                            //MessageBox.Show(structureField.ArrayDimensions[0].ToString());
+                            //arrayDimensions = structureField.ArrayDimensions[0].ToString();
+                            arrayDimensions = "142";
                         }
                         //Add the structure field name, its data type node id and array dimension to the dictionary list
                         tempStructureDictionary.Add(new string[] { structureField.Name, ((NodeId)referenceDescriptionCollection[0].NodeId).ToString(), arrayDimensions });

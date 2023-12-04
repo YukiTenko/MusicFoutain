@@ -1,0 +1,47 @@
+﻿<Page x:Class="MusicFountain.UI.Hardware.Group.UI_Group_LEDDMX_Artnet"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MusicFountain.UI.Hardware.Group"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="UI_Group_LEDDMX_Artnet">
+
+    <Grid Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <DataGrid Name ="listGroup_DataGrid" Grid.Row="1" AutoGenerateColumns="False"  FontSize="12" CanUserReorderColumns="False" CanUserResizeColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Header="ID" Binding="{Binding id}" Width="1*" />
+                <DataGridTextColumn Width="3*" Header="Tên nhóm" Binding="{Binding name}"/>
+                <DataGridComboBoxColumn x:Name ="devStart_ComboBox" SelectedItemBinding="{Binding startDev}" Width="1.5*" Header="LED BĐ"/>
+                <DataGridComboBoxColumn x:Name ="devEnd_ComboBox" SelectedItemBinding="{Binding endDev}" Width="1.5*" Header="LED KT" />
+                <DataGridComboBoxColumn x:Name ="groupEffect_ComboBox" SelectedItemBinding="{Binding effect}" Width="3*" Header="Hiệu ứng"/>
+                <DataGridTextColumn Width="1*" Header="T mở (ms)" Binding="{Binding timeHoldOn}" />
+                <DataGridTextColumn Width="1*" Header="T tẳt (ms)" Binding="{Binding timeHoldOff}" />
+                <DataGridTextColumn Width="1*" Header="Red (%)" Binding="{Binding red}" />
+                <DataGridTextColumn Width="1*" Header="Green (%)" Binding="{Binding green}" />
+                <DataGridTextColumn Width="1*" Header="Blue (%)" Binding="{Binding blue}" />
+                <DataGridTemplateColumn Header="Test" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="GroupTest_ButtonClick_EventHandle">Test</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <GroupBox Header="Group Process" Grid.Row="0" Grid.Column="1">
+            <Grid >
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Lưu" Click="GroupSave_ButtonClick_EventHandle" Width="100" Height="25" HorizontalAlignment="Left" Margin="2"/>
+                </StackPanel>
+
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Page>

@@ -1,0 +1,94 @@
+﻿<Page x:Class="MusicFountain.UI.Music.UI_MusicEditor"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MusicFountain.UI"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="UI_MusicEditor">
+
+    <Page.Resources>
+        <local:ColorTimeConverter x:Key="ColorTimeConverter"/>        
+    </Page.Resources>
+
+    <Grid Background="GhostWhite">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="100*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="9*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="5*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Background="GhostWhite">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <ComboBox x:Name="musicSelection_ComboBox" Grid.Row="0" Grid.Column="0" Margin="10" SelectionChanged="MusicSelection_ComboBoxChanged_EventHandle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Slider x:Name="musicTime_Slider" Grid.Row="0" Grid.Column="1" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+            <Label x:Name="musicTime_Label" Grid.Row="0" Grid.Column="2" Margin="5" Content="00:00/00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Click="Play_ButtonClick_EventHanle" Grid.Row="0" Grid.Column="3" Margin="10" Content="Chạy" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Button Click="Stop_ButtonClick_EventHandle" Grid.Row="0" Grid.Column="4" Margin="10" Content="Dừng" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" Height="150" Background="Black">
+                    <Image Width="150" Source="/Icon/music.png" />
+                    <WpfPlot Name="musicUI_WpfPlot" Width="1200" />
+                </StackPanel>
+                <Grid x:Name="musicEffectTimeLine_Grid">
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button Grid.Row="2" Grid.Column="0" Click="UpdateListTime_ButtonClick_EventHandle" Content="Cập nhật các mốc thời gian" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="10"/>
+        <Button Grid.Row="2" Grid.Column="2" Click="UpdateListTimeAndEffectOrder_ButtonClick_EventHandle" Content="Cập nhật thứ tự thời gian và hiệu ứng" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="10"/>
+        <Button Grid.Row="2" Grid.Column="2" Click="SaveListEffect_ButtonClick_EventHandle" Content="Lưu thông tin bài hát" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="10"/>
+        
+        <DataGrid Name="listTime_DataGrid" Grid.Row="3" Grid.Column="0" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Header="ID" Binding="{Binding idTime}" Width="1*"/>
+                <DataGridTextColumn Header="Thời gian bắt đầu (ms)" Binding="{Binding timeStart}" Width="4*"/>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{Binding idTime, Converter={StaticResource ColorTimeConverter}}" />
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+
+        <DataGrid Name="listMusicEffect_DataGrid" Grid.Row="3" Grid.Column="2" AutoGenerateColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Binding="{Binding id}" Width="1*" Header="ID" />
+                <DataGridComboBoxColumn x:Name="timeID_ComboBox" Header="Time ID" SelectedItemBinding="{Binding idTime}" Width="1.5*" />
+                <DataGridComboBoxColumn x:Name="effectName_ComboBox" Header="Tên hiệu ứng" SelectedItemBinding="{Binding effectName}" Width="5*" />
+                <DataGridTextColumn IsReadOnly="True" Width="5*"  Header="Tên nhóm" Binding="{Binding groupName}"/>
+
+                <DataGridTextColumn IsReadOnly="True" Width="3*"  Header="Loại hiệu ứng" Binding="{Binding groupEffect}"/>
+                <DataGridTextColumn IsReadOnly="True" Width="1*"  Header="TS 1" Binding="{Binding groupPara1}"/>
+                <DataGridTextColumn IsReadOnly="True" Width="1*" Header="TS 2" Binding="{Binding groupPara2}"/>
+                <DataGridTextColumn IsReadOnly="True" Width="1*"  Header="TS 3" Binding="{Binding groupPara3}"/>
+                <DataGridTextColumn IsReadOnly="True" Width="1*" Header="TS 4" Binding="{Binding groupPara4}"/>
+                <DataGridTextColumn IsReadOnly="True" Width="1*" Header="TS 5" Binding="{Binding groupPara5}"/>
+                <DataGridTextColumn IsReadOnly="True" Width="1*" Header="TS 6" Binding="{Binding groupPara6}"/>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{Binding idTime, Converter={StaticResource ColorTimeConverter}}" />
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+       
+    </Grid>
+</Page>

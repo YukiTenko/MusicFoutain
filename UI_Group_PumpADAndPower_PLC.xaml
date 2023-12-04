@@ -1,0 +1,80 @@
+﻿<Page x:Class="MusicFountain.UI.Hardware.Group.UI_Group_PumpADAndPower_PLC"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:MusicFountain.UI"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="UI_Group_PumpADAndPower_PLC">
+
+    <Page.Resources>
+        <local:DeviceListConverter x:Key="DeviceListConverter"/>
+        <local:EffectListConverter x:Key="EffectListConverter"/>
+    </Page.Resources>
+    
+    <Grid Name ="Xaml_GroupInverterPage" Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <DataGrid Name ="listGroup_DataGrid" Grid.Row="1" AutoGenerateColumns="False"  FontSize="12" CanUserReorderColumns="False" CanUserResizeColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn IsReadOnly="True" Width="0.5*" Header="ID" Binding="{Binding id}" />
+                <DataGridTextColumn Width="3*" Header="Tên nhóm" Binding="{Binding name}"/>
+                <DataGridComboBoxColumn x:Name ="groupType_ComboBox" SelectedItemBinding="{Binding type}" Width="2*" Header="Kiểu" />
+
+                <DataGridTemplateColumn Header="Van BĐ" Width="1.5*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding type, Converter={StaticResource DeviceListConverter}}" 
+                                      IsSynchronizedWithCurrentItem="False"
+                                      SelectedItem="{Binding startDev, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Van KT" Width="1.5*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding type, Converter={StaticResource DeviceListConverter}}" 
+                                      IsSynchronizedWithCurrentItem="False"
+                                      SelectedItem="{Binding endDev, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Hiệu ứng" Width="3*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding type, Converter={StaticResource EffectListConverter}}" 
+                                      IsSynchronizedWithCurrentItem="False"
+                                      SelectedItem="{Binding effect, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Width="1*" Header="CS max" Binding="{Binding freqMax}" />
+                <DataGridTextColumn Width="1*" Header="CK/Tg đến max" Binding="{Binding timeGoOn}" />
+                <DataGridTextColumn Width="1*" Header="Tg giữ max" Binding="{Binding timeHoldOn}" />
+                <DataGridTextColumn Width="1*" Header="CS min" Binding="{Binding freqMin}" />
+                <DataGridTextColumn Width="1*" Header="Tg đến min" Binding="{Binding timeGoOff}" />
+                <DataGridTextColumn Width="1*" Header="Tg giữ min" Binding="{Binding timeHoldOff}" />
+                <DataGridTemplateColumn Header="Test" Width="2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Click="GroupTest_ButtonClick_EventHandle"> Test </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <GroupBox Header="Chỉnh sửa nhóm" Grid.Row="0" Grid.Column="1">
+            <Grid >
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Lưu" Click="GroupSave_ButtonClick_EventHandle" Width="100" Height="25" HorizontalAlignment="Left" Margin="2"/>
+                </StackPanel>
+
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Page>

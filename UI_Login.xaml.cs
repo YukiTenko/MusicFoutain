@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace MusicFountain
+namespace MusicFountain.UI
 {
     /// <summary>
     /// Interaction logic for UI_Login.xaml
@@ -23,7 +23,7 @@ namespace MusicFountain
     public partial class UI_Login : Page
     {
         // Variables
-        private Data_UserInfo userInfo;
+        private Data.Data_UserInfo userInfo;
 
         // UI
         private TextBox userNameBox;
@@ -31,14 +31,14 @@ namespace MusicFountain
         private Button loginButton;
 
         // Event
-        public event EventHandler<Data_UserInfo> loginClick;
+        public event EventHandler<Data.Data_UserInfo> loginClick;
 
         public UI_Login(string xmlFilePath)
         {
             InitializeComponent();
 
             {// Creat variables
-                userInfo = new Data_UserInfo();
+                userInfo = new Data.Data_UserInfo();
             }
 
             try
